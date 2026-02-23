@@ -45,7 +45,7 @@
 
   <!-- 3rd-party library configuration folder (always uses static linking) -->
   <PropertyGroup>
-    <Ocean3rdPartyConfigFolder>android_$(OceanPlatformSuffix)_$(OceanCompilerVersion)_static$(OceanConfigSuffix)</Ocean3rdPartyConfigFolder>
+    <Ocean3rdPartyConfigFolder>android_$(OceanPlatformSuffix)_static$(OceanConfigSuffix)</Ocean3rdPartyConfigFolder>
   </PropertyGroup>
 
   <!-- Common compiler settings for all configurations -->

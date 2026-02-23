@@ -13,4 +13,10 @@
     <Import Condition="'$(ocean_base_use_imported)' != 'True'" Project="..\base\base_use.props"/>
     <Import Condition="'$(ocean_io_use_imported)' != 'True'" Project="..\io\io_use.props"/>
   </ImportGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(OceanRootPath)3rdparty\curl\h\android;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
 </Project>
