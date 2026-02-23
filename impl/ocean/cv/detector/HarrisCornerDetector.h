@@ -94,7 +94,7 @@ class OCEAN_CV_DETECTOR_EXPORT HarrisCornerDetector
 				 * @param preciseStrength The resulting strength value of the precise Harris corner
 				 * @return True, if succeeded
 				 */
-				bool precisePosition(const unsigned int x, const unsigned int y, const int32_t strength, Scalar& preciseX, Scalar& preciseY, int32_t& preciseStrength);
+				bool precisePosition(const unsigned int x, const unsigned int y, const int32_t strength, Scalar& preciseX, Scalar& preciseY, int32_t& preciseStrength) const;
 
 			protected:
 

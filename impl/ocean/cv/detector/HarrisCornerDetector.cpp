@@ -20,20 +20,20 @@ namespace CV
 namespace Detector
 {
 
-bool HarrisCornerDetector::PreciseCornerPosition::precisePosition(const unsigned int x, const unsigned int y, const int32_t strength, Scalar& preciseX, Scalar& preciseY, int32_t& preciseStrength)
+bool HarrisCornerDetector::PreciseCornerPosition::precisePosition(const unsigned int x, const unsigned int y, const int32_t strength, Scalar& preciseX, Scalar& preciseY, int32_t& preciseStrength) const
 {
 	ocean_assert(frameData_ != nullptr);
 	ocean_assert(frameWidth_ >= 10u);
 	ocean_assert(x >= 3u && y >= 3u && x < frameWidth_ - 3u && y < frameHeight_ - 3u);
 
-	// overall we need 3x3 Harris votes, which are based on 5x5 sobel responses
+	// overall we need 3x3 Harris votes, which are based on 5x5 Sobel responses
 
 	const unsigned int frameStrideElements = frameWidth_ + framePaddingElements_;
 
 	constexpr unsigned int numberSobelResponses = 8u;
 	ocean_assert(numberSobelResponses + 2u <= frameWidth_);
 
-	// although we need 5 sobel responses only (in horizontal direction), our functions below will at least create eight responses (in horizontal direction)
+	// although we need 5 Sobel responses only (in horizontal direction), our functions below will at least create eight responses (in horizontal direction)
 	const unsigned int firstSobelResponseLeft8 = min(x - 3u, frameWidth_ - numberSobelResponses - 1u);
 	ocean_assert(firstSobelResponseLeft8 <= x - 3u);
 	ocean_assert(firstSobelResponseLeft8 + numberSobelResponses < frameWidth_);
@@ -207,9 +207,9 @@ bool HarrisCornerDetector::detectCorners(const uint8_t* yFrame, const unsigned i
 
 	if (determineExactPosition)
 	{
-		PreciseCornerPosition precisePositionObject(yFrame, width, height, yFramePaddingElements);
+		const PreciseCornerPosition precisePositionObject(yFrame, width, height, yFramePaddingElements);
 
-		const NonMaximumSuppressionVote::PositionCallback<Scalar, int32_t> callbackFunction(NonMaximumSuppressionVote::PositionCallback<Scalar, int32_t>::create(precisePositionObject, &PreciseCornerPosition::precisePosition));
+		const NonMaximumSuppressionVote::PositionCallback<Scalar, int32_t> callbackFunction(std::bind(&PreciseCornerPosition::precisePosition, &precisePositionObject, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 		NonMaximumSuppressionVote::StrengthPositions<Scalar, int32_t> strengthPositions;
 
 		if (!nonMaximumSuppression.suppressNonMaximum<Scalar, int32_t, false /*tStrictMaximum*/>(subFrameLeft + 3u, subFrameWidth - 6u, subFrameTop + 3u, subFrameHeight - 6u, strengthPositions, useWorker, &callbackFunction))
