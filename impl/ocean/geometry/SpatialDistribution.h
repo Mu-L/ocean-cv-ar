@@ -1495,10 +1495,7 @@ inline bool SpatialDistribution::OccupancyArray::removePoint(const Vector2& poin
 
 inline void SpatialDistribution::OccupancyArray::reset()
 {
-	for (size_t n = 0; n < occupancy_.size(); ++n)
-	{
-		occupancy_[n] = 0u;
-	}
+	std::fill(occupancy_.begin(), occupancy_.end(), 0u);
 }
 
 inline SpatialDistribution::OccupancyArray& SpatialDistribution::OccupancyArray::operator+=(const Vector2& point)

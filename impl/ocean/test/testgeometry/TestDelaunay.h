@@ -44,8 +44,6 @@ class OCEAN_TEST_GEOMETRY_EXPORT TestDelaunay
 		 */
 		static bool testTriangulation(const double testDuration);
 
-	protected:
-
 		/**
 		 * Tests the delaunay triangulation for a specified number of random points.
 		 * @param pointNumber The number of points to be used for triangulation, with range [3, infinity)

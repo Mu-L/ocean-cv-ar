@@ -49,19 +49,50 @@ bool TestDelaunay::test(const double testDuration, const TestSelector& selector)
 
 #ifdef OCEAN_USE_GTEST
 
-TEST(TestDelaunay, Triangulation)
+TEST(TestDelaunay, Triangulation_3)
 {
-	EXPECT_TRUE(TestDelaunay::testTriangulation(GTEST_TEST_DURATION));
+	EXPECT_TRUE(TestDelaunay::testTriangulation(3u, GTEST_TEST_DURATION));
 }
+
+TEST(TestDelaunay, Triangulation_5)
+{
+	EXPECT_TRUE(TestDelaunay::testTriangulation(5u, GTEST_TEST_DURATION));
+}
+
+TEST(TestDelaunay, Triangulation_10)
+{
+	EXPECT_TRUE(TestDelaunay::testTriangulation(10u, GTEST_TEST_DURATION));
+}
+
+TEST(TestDelaunay, Triangulation_50)
+{
+	EXPECT_TRUE(TestDelaunay::testTriangulation(50u, GTEST_TEST_DURATION));
+}
+
+#ifndef OCEAN_MATH_USE_SINGLE_PRECISION
+
+TEST(TestDelaunay, Triangulation_100)
+{
+	EXPECT_TRUE(TestDelaunay::testTriangulation(100u, GTEST_TEST_DURATION));
+}
+
+TEST(TestDelaunay, Triangulation_1000)
+{
+	EXPECT_TRUE(TestDelaunay::testTriangulation(1000u, GTEST_TEST_DURATION));
+}
+
+TEST(TestDelaunay, Triangulation_2000)
+{
+	EXPECT_TRUE(TestDelaunay::testTriangulation(2000u, GTEST_TEST_DURATION));
+}
+
+#endif
 
 #endif // OCEAN_USE_GTEST
 
 bool TestDelaunay::testTriangulation(const double testDuration)
 {
-	Log::info() << "Test triangulation:";
-
-	RandomGenerator randomGenerator;
-	Validation validation(randomGenerator);
+	TestResult testResult("Test triangulation");
 
 #ifdef OCEAN_MATH_USE_SINGLE_PRECISION
 	for (const unsigned int numberPoints : {3u, 5u, 10u, 50u})
@@ -71,14 +102,14 @@ bool TestDelaunay::testTriangulation(const double testDuration)
 	{
 		Log::info() << " ";
 
-		OCEAN_EXPECT_TRUE(validation, testTriangulation(numberPoints, testDuration));
+		testResult = testTriangulation(numberPoints, testDuration);
 	}
 
 	Log::info() << " ";
 
-	Log::info() << "Validation: " << validation;
+	Log::info() << "Validation: " << testResult;
 
-	return validation.succeeded();
+	return testResult.succeeded();
 }
 
 bool TestDelaunay::testTriangulation(const unsigned int pointNumber, const double testDuration)
@@ -96,16 +127,18 @@ bool TestDelaunay::testTriangulation(const unsigned int pointNumber, const doubl
 
 	HighPerformanceStatistic performance;
 
+	constexpr Scalar areaSize = range * Scalar(2);
+	constexpr unsigned int bins = (unsigned int)(range * 10);
+
+	Geometry::SpatialDistribution::OccupancyArray occupancyArray(-range, -range, areaSize, areaSize, bins, bins);
+
 	const Timestamp startTimestamp(true);
 
 	do
 	{
+		occupancyArray.reset();
+
 		ValidationPrecision::ScopedIteration scopedIteration(validation);
-
-		constexpr Scalar areaSize = range * Scalar(2);
-		constexpr unsigned int bins = (unsigned int)(range * 10);
-
-		Geometry::SpatialDistribution::OccupancyArray occupancyArray(-range, -range, areaSize, areaSize, bins, bins);
 
 		Vectors2 points;
 		points.reserve(pointNumber);
