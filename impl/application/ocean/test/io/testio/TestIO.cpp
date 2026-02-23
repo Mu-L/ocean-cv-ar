@@ -45,6 +45,7 @@ using namespace Ocean;
 	commandArguments.registerParameter("output", "o", "The optional output file for the test log, e.g., log.txt");
 	commandArguments.registerParameter("functions", "f", "The optional subset of functions to test, e.g., \"compression\"");
 	commandArguments.registerParameter("duration", "d", "The test duration for each test in seconds, e.g., 1.0", Value(defaultTestDuration));
+	commandArguments.registerParameter("waitForKey", "wfk", "Wait for a key input before the application exits");
 	commandArguments.registerParameter("help", "h", "Show this help output");
 
 	commandArguments.parse(argv, size_t(argc));
@@ -127,9 +128,9 @@ using namespace Ocean;
 	Log::info() << "End: " << DateTime::stringDate() << ", " << DateTime::stringTime() << " UTC";
 	Log::info() << " ";
 
-	if (Messenger::get().outputType() == Messenger::OUTPUT_STANDARD)
+	if (commandArguments.hasValue("waitForKey"))
 	{
-		std::cout << "Press a key to exit.";
+		Log::info() << "Press a key to exit.";
 		getchar();
 	}
 

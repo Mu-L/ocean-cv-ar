@@ -8,6 +8,7 @@
 #include "application/ocean/test/rendering/testrendering/TestRendering.h"
 
 #include "ocean/base/Build.h"
+#include "ocean/base/CommandArguments.h"
 #include "ocean/base/DateTime.h"
 #include "ocean/base/RandomI.h"
 #include "ocean/base/String.h"
@@ -25,10 +26,10 @@ using namespace Ocean;
 
 #if defined(_WINDOWS)
 	// main function on Windows platforms
-	int wmain(int /*argc*/, wchar_t** /*argv*/)
+	int wmain(int argc, wchar_t* argv[])
 #elif defined(__APPLE__) || defined(__linux__)
 	// main function on UNIX platforms
-	int main(int /*argc*/, char** /*argv*/)
+	int main(int argc, char* argv[])
 #else
 	#error Missing implementation.
 #endif
@@ -39,6 +40,19 @@ using namespace Ocean;
 #endif
 
 	Messenger::get().setOutputType(Messenger::OUTPUT_STANDARD);
+
+	CommandArguments commandArguments;
+	commandArguments.registerParameter("waitForKey", "wfk", "Wait for a key input before the application exits");
+	commandArguments.registerParameter("help", "h", "Show this help output");
+
+	commandArguments.parse(argv, size_t(argc));
+
+	if (commandArguments.hasValue("help", nullptr, false))
+	{
+		std::cout << "Ocean Framework test for the Rendering library:" << std::endl << std::endl;
+		std::cout << commandArguments.makeSummary() << std::endl;
+		return 0;
+	}
 
 	System::Process::setPriority(System::Process::PRIORITY_REALTIME);
 	RandomI::initialize();
@@ -59,9 +73,11 @@ using namespace Ocean;
 
 	Test::TestRendering::testRendering(testDuration, worker);
 
-	std::cout << "Press a key to exit.";
-
-	getchar();
+	if (commandArguments.hasValue("waitForKey"))
+	{
+		Log::info() << "Press a key to exit.";
+		getchar();
+	}
 
 	return 0;
 }

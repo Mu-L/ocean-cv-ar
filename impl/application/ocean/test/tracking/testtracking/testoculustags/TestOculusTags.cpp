@@ -8,6 +8,7 @@
 #include "application/ocean/test/tracking/testtracking/testoculustags/TestOculusTags.h"
 
 #include "ocean/base/Build.h"
+#include "ocean/base/CommandArguments.h"
 #include "ocean/base/DateTime.h"
 #include "ocean/base/Processor.h"
 #include "ocean/base/RandomI.h"
@@ -43,57 +44,47 @@ using namespace Ocean;
 #endif
 
 #ifdef OCEAN_DEBUG
-	double testDuration = 0.1;
+	constexpr double defaultTestDuration = 0.1;
 #else
-	double testDuration = 2;
+	constexpr double defaultTestDuration = 2.0;
 #endif
 
-	std::string outputFilename, functionList;
+	CommandArguments commandArguments;
+	commandArguments.registerParameter("output", "o", "The optional output file for the test log, e.g., log.txt");
+	commandArguments.registerParameter("functions", "f", "The optional subset of functions to test, e.g., \"stresstest\"");
+	commandArguments.registerParameter("duration", "d", "The test duration for each test in seconds, e.g., 1.0", Value(defaultTestDuration));
+	commandArguments.registerParameter("waitForKey", "wfk", "Wait for a key input before the application exits");
+	commandArguments.registerParameter("help", "h", "Show this help output");
 
-	if (argc >= 2)
+	commandArguments.parse(argv, size_t(argc));
+
+	if (commandArguments.hasValue("help", nullptr, false))
 	{
-		// special case that the first argument is a '?' or "--help"":
-		if (String::toWString(argv[1]) == std::wstring(L"?") || String::toWString(argv[1]) == std::wstring(L"--help"))
-		{
-			std::cout << "Ocean Framework test for the Tracking Oculus Tag library:" << std::endl << std::endl;
-			std::cout << "Optional arguments: " << std::endl;
-			std::cout << "Parameter 1: [log output file e.g., \"log.txt\" or default \"\"]" << std::endl;
-			std::cout << "Parameter 2: [functions to test e.g., \"stresstest\" or default \"\"]" << std::endl;
-			std::cout << "Parameter 3: [duration for each test in seconds e.g., \"2.5\" or default \"\"]" << std::endl << std::endl;
-			std::cout << "Examples:" << std::endl;
-			std::cout << "\"\" \"\" 0.5" << std::endl;
-			std::cout << "(output to the console, all functions will be tested, each test takes approx. 0.5 seconds)" << std::endl << std::endl;
-			std::cout << "output.log \"stresstest\"" << std::endl;
-			std::cout << "(output to output.log file, one specific function will be tested, with default test duration)" << std::endl << std::endl;
-
-			return 0;
-		}
-
-		const std::string file(String::trim(String::toAString(argv[1])));
-
-		if (!file.empty())
-		{
-			outputFilename = file;
-		}
+		std::cout << "Ocean Framework test for the Tracking Oculus Tag library:" << std::endl << std::endl;
+		std::cout << commandArguments.makeSummary() << std::endl;
+		return 0;
 	}
 
-	if (argc >= 3)
+	double testDuration = defaultTestDuration;
+	std::string outputFilename;
+	std::string functionList;
+
+	Value durationValue;
+	if (commandArguments.hasValue("duration", &durationValue, true) && durationValue.isFloat64(true))
 	{
-		functionList = String::trim(String::toAString(argv[2]));
+		testDuration = durationValue.float64Value(true);
 	}
 
-	if (argc >= 4)
+	Value outputValue;
+	if (commandArguments.hasValue("output", &outputValue) && outputValue.isString())
 	{
-		const std::string duration(String::trim(String::toAString(argv[3])));
+		outputFilename = outputValue.stringValue();
+	}
 
-		if (!duration.empty())
-		{
-			const double value = atof(duration.c_str());
-			if (value > 0)
-			{
-				testDuration = value;
-			}
-		}
+	Value functionsValue;
+	if (commandArguments.hasValue("functions", &functionsValue) && functionsValue.isString())
+	{
+		functionList = functionsValue.stringValue();
 	}
 
 	if (outputFilename.empty() || outputFilename == "STANDARD")
@@ -165,9 +156,9 @@ using namespace Ocean;
 	Log::info() << "End: " << DateTime::stringDate() << ", " << DateTime::stringTime() << " UTC";
 	Log::info() << " ";
 
-	if (Messenger::get().outputType() == Messenger::OUTPUT_STANDARD)
+	if (commandArguments.hasValue("waitForKey"))
 	{
-		std::cout << "Press a key to exit.";
+		Log::info() << "Press a key to exit.";
 		getchar();
 	}
 

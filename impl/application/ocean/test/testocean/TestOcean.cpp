@@ -8,6 +8,7 @@
 #include "application/ocean/test/testocean/TestOcean.h"
 
 #include "ocean/base/Build.h"
+#include "ocean/base/CommandArguments.h"
 #include "ocean/base/DateTime.h"
 #include "ocean/base/PluginManager.h"
 #include "ocean/base/Processor.h"
@@ -67,73 +68,57 @@ using namespace Ocean;
 #endif
 
 	const std::string frameworkPath(Platform::System::environmentVariable("OCEAN_DEVELOPMENT_PATH"));
-	std::string mediaFilename = frameworkPath + std::string("/res/application/ocean/test/cv/testcv/testdetector/tropical-island-with-toucans_800x800.jpg");
 
 #ifdef OCEAN_DEBUG
-	double testDuration = 0.1;
+	constexpr double defaultTestDuration = 0.1;
 #else
-	double testDuration = 2;
+	constexpr double defaultTestDuration = 2.0;
 #endif // OCEAN_DEBUG
 
-	std::string outputFilename, libraryList;
+	CommandArguments commandArguments;
+	commandArguments.registerParameter("image", "i", "The test image filename, e.g., \"image.png\"", Value(frameworkPath + std::string("/res/application/ocean/test/cv/testcv/testdetector/tropical-island-with-toucans_800x800.jpg")));
+	commandArguments.registerParameter("output", "o", "The optional output file for the test log, e.g., log.txt");
+	commandArguments.registerParameter("libraries", "l", "The optional subset of libraries to test, e.g., \"cv, geometry\"");
+	commandArguments.registerParameter("duration", "d", "The test duration for each test in seconds, e.g., 1.0", Value(defaultTestDuration));
+	commandArguments.registerParameter("waitForKey", "wfk", "Wait for a key input before the application exits");
+	commandArguments.registerParameter("help", "h", "Show this help output");
 
-	if (argc >= 2)
+	commandArguments.parse(argv, size_t(argc));
+
+	if (commandArguments.hasValue("help", nullptr, false))
 	{
-		// special case that the first argument is a '?':
-		if (String::toWString(argv[1]) == std::wstring(L"?"))
-		{
-			std::cout << "Ocean Framework test:" << std::endl << std::endl;
-			std::cout << "Optional arguments: " << std::endl;
-			std::cout << "Parameter 1: [test image filename e.g., \"image.png\" or default \"\"]" << std::endl;
-			std::cout << "Parameter 2: [log output file e.g., \"log.txt\" or default \"\"]" << std::endl;
-			std::cout << "Parameter 3: [libraries to test e.g., \"cv, geometry\" or default \"\"]" << std::endl;
-			std::cout << "Parameter 4: [duration for each test in seconds e.g., \"2.5\" or default \"\"]" << std::endl << std::endl;
-			std::cout << "Examples:" << std::endl;
-			std::cout << "image.png \"\" \"\" 0.5" << std::endl;
-			std::cout << "(test image image.png, output to the console, all libraries will be tested, each test takes approx. 0.5 seconds)" << std::endl << std::endl;
-			std::cout << "\"\" output.log \"base, cv, geometry\"" << std::endl;
-			std::cout << "(default test image, output to output.log file, three specific libraries will be tested, with default test duration)" << std::endl << std::endl;
-			std::cout << "tropical-island-with-toucans_800x800.jpg ocean_framework_test.log" << std::endl;
-			std::cout << "(standardized test)" << std::endl << std::endl;
-
-			return 0;
-		}
-
-		const std::string file(String::trim(String::toAString(argv[1]), '\"'));
-
-		if (!file.empty())
-		{
-			mediaFilename = file;
-		}
+		std::cout << "Ocean Framework test:" << std::endl << std::endl;
+		std::cout << commandArguments.makeSummary() << std::endl;
+		return 0;
 	}
 
-	if (argc >= 3)
-	{
-		const std::string file(String::trim(String::toAString(argv[2])));
+	std::string mediaFilename = frameworkPath + std::string("/res/application/ocean/test/cv/testcv/testdetector/tropical-island-with-toucans_800x800.jpg");
+	double testDuration = defaultTestDuration;
+	std::string outputFilename;
+	std::string libraryList;
 
-		if (!file.empty())
-		{
-			outputFilename = file;
-		}
+	Value imageValue;
+	if (commandArguments.hasValue("image", &imageValue, true) && imageValue.isString())
+	{
+		mediaFilename = imageValue.stringValue();
 	}
 
-	if (argc >= 4)
+	Value durationValue;
+	if (commandArguments.hasValue("duration", &durationValue, true) && durationValue.isFloat64(true))
 	{
-		libraryList = String::trim(String::toAString(argv[3]));
+		testDuration = durationValue.float64Value(true);
 	}
 
-	if (argc >= 5)
+	Value outputValue;
+	if (commandArguments.hasValue("output", &outputValue) && outputValue.isString())
 	{
-		const std::string duration(String::trim(String::toAString(argv[4])));
+		outputFilename = outputValue.stringValue();
+	}
 
-		if (!duration.empty())
-		{
-			const double value = atof(duration.c_str());
-			if (value > 0)
-			{
-				testDuration = value;
-			}
-		}
+	Value librariesValue;
+	if (commandArguments.hasValue("libraries", &librariesValue) && librariesValue.isString())
+	{
+		libraryList = librariesValue.stringValue();
 	}
 
 	if (outputFilename.empty() || outputFilename == "STANDARD")
@@ -295,7 +280,7 @@ using namespace Ocean;
 
 	Log::info() << " ";
 
-	if (Messenger::get().outputType() == Messenger::OUTPUT_STANDARD)
+	if (commandArguments.hasValue("waitForKey"))
 	{
 		Log::info() << "Press a key to exit.";
 		getchar();

@@ -9,6 +9,7 @@
 #include "application/ocean/test/cv/detector/orbpatterngenerator/win/ORBPatternGenerator.h"
 
 #include "ocean/base/Build.h"
+#include "ocean/base/CommandArguments.h"
 #include "ocean/base/PluginManager.h"
 #include "ocean/base/String.h"
 #include "ocean/base/Timestamp.h"
@@ -29,6 +30,28 @@ using namespace Ocean;
 int wmain(int argc, wchar_t* argv[])
 {
 
+	CommandArguments commandArguments;
+	commandArguments.registerParameter("path", "p", "The path to the image directory");
+	commandArguments.registerParameter("waitForKey", "wfk", "Wait for a key input before the application exits");
+	commandArguments.registerParameter("help", "h", "Show this help output");
+
+	commandArguments.parse(argv, size_t(argc));
+
+	if (commandArguments.hasValue("help", nullptr, false))
+	{
+		std::cout << "Ocean ORB Pattern Generator:" << std::endl << std::endl;
+		std::cout << commandArguments.makeSummary() << std::endl;
+		return 0;
+	}
+
+	std::string path;
+
+	Value pathValue;
+	if (commandArguments.hasValue("path", &pathValue) && pathValue.isString())
+	{
+		path = pathValue.stringValue();
+	}
+
 #ifdef OCEAN_RUNTIME_STATIC
 	Media::WIC::registerWICLibrary();
 #else
@@ -47,15 +70,12 @@ int wmain(int argc, wchar_t* argv[])
 	PluginManager::get().loadPlugins(PluginManager::TYPE_MEDIA);
 #endif
 
-	if (argc <= 1)
+	if (path.empty())
 	{
 		std::cout << "No image path specified" << std::endl;
 	}
 	else
 	{
-		std::string path;
-
-		path = String::toAString(argv[1]);
 		size_t position = path.find_last_of("/\\");
 
 		if (position == path.length() - 1)
@@ -156,8 +176,11 @@ int wmain(int argc, wchar_t* argv[])
 	PluginManager::get().release();
 #endif
 
-	Log::info() << "Press a key to exit.";
-	getchar();
+	if (commandArguments.hasValue("waitForKey"))
+	{
+		Log::info() << "Press a key to exit.";
+		getchar();
+	}
 
 	return 0;
 }
