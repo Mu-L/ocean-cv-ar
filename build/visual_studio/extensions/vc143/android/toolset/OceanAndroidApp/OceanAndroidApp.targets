@@ -28,14 +28,6 @@
     </OceanNativeSharedLibrary>
   </ItemDefinitionGroup>
 
-  <!-- Create None items from OceanNativeSharedLibrary for Solution Explorer display -->
-  <!-- VS doesn't display custom item types with <Link>, so we create matching None items -->
-  <ItemGroup>
-    <None Include="@(OceanNativeSharedLibrary)">
-      <Link>dependencies\%(Filename)%(Extension)</Link>
-    </None>
-  </ItemGroup>
-
   <!-- ============================================================
        Property Page Schemas
 
