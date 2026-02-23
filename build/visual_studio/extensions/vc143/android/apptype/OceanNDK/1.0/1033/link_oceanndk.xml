@@ -27,7 +27,11 @@
                   Description="The -o option overrides the default name and location of the program that the linker creates."
                   Category="General"
                   Switch="o"
-                  F1Keyword="VC.Project.VCLinkerTool.OutputFile" />
+                  F1Keyword="VC.Project.VCLinkerTool.OutputFile">
+    <StringProperty.DataSource>
+      <DataSource Persistence="ProjectFile" ItemType="Link" Label="" HasConfigurationCondition="true" />
+    </StringProperty.DataSource>
+  </StringProperty>
 
   <BoolProperty Name="ShowProgress"
                 DisplayName="Show Progress"
@@ -48,7 +52,11 @@
                       DisplayName="Additional Dependencies"
                       Description="Specifies additional items to add to the link command line (e.g., log;android)."
                       Category="Input"
-                      F1Keyword="VC.Project.VCLinkerTool.AdditionalDependencies" />
+                      F1Keyword="VC.Project.VCLinkerTool.AdditionalDependencies">
+    <StringListProperty.DataSource>
+      <DataSource Persistence="ProjectFile" ItemType="Link" Label="" HasConfigurationCondition="true" />
+    </StringListProperty.DataSource>
+  </StringListProperty>
 
   <StringListProperty Name="AdditionalLibraryDirectories"
                       DisplayName="Additional Library Directories"
@@ -56,7 +64,11 @@
                       Category="Input"
                       Switch="L"
                       Subtype="folder"
-                      F1Keyword="VC.Project.VCLinkerTool.AdditionalLibraryDirectories" />
+                      F1Keyword="VC.Project.VCLinkerTool.AdditionalLibraryDirectories">
+    <StringListProperty.DataSource>
+      <DataSource Persistence="ProjectFile" ItemType="Link" Label="" HasConfigurationCondition="true" />
+    </StringListProperty.DataSource>
+  </StringListProperty>
 
   <!-- Debugging Category -->
   <BoolProperty Name="GenerateDebugInfo"
@@ -78,7 +90,11 @@
                   Description="Sets the internal DT_SONAME field to the specified name."
                   Category="Advanced"
                   Switch="Wl,-soname,"
-                  F1Keyword="VC.Project.VCLinkerTool.SoName" />
+                  F1Keyword="VC.Project.VCLinkerTool.SoName">
+    <StringProperty.DataSource>
+      <DataSource Persistence="ProjectFile" ItemType="Link" Label="" HasConfigurationCondition="true" />
+    </StringProperty.DataSource>
+  </StringProperty>
 
   <EnumProperty Name="LinkTimeCodeGeneration"
                 DisplayName="Link Time Optimization"
@@ -94,6 +110,10 @@
                       DisplayName="Additional Options"
                       Description="Additional linker command line options."
                       Category="Advanced"
-                      F1Keyword="VC.Project.VCLinkerTool.AdditionalOptions" />
+                      F1Keyword="VC.Project.VCLinkerTool.AdditionalOptions">
+    <StringListProperty.DataSource>
+      <DataSource Persistence="ProjectFile" ItemType="Link" Label="" HasConfigurationCondition="true" />
+    </StringListProperty.DataSource>
+  </StringListProperty>
 
 </Rule>

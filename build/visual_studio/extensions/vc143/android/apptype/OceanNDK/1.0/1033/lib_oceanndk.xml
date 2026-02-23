@@ -23,7 +23,11 @@
                   DisplayName="Output File"
                   Description="The output file name for the static library (.a file)."
                   Category="General"
-                  F1Keyword="VC.Project.VCLibrarianTool.OutputFile" />
+                  F1Keyword="VC.Project.VCLibrarianTool.OutputFile">
+    <StringProperty.DataSource>
+      <DataSource Persistence="ProjectFile" ItemType="Lib" Label="" HasConfigurationCondition="true" />
+    </StringProperty.DataSource>
+  </StringProperty>
 
   <BoolProperty Name="Verbose"
                 DisplayName="Verbose"
@@ -42,12 +46,20 @@
                       DisplayName="Additional Options"
                       Description="Additional command line options for the librarian."
                       Category="Advanced"
-                      F1Keyword="VC.Project.VCLibrarianTool.AdditionalOptions" />
+                      F1Keyword="VC.Project.VCLibrarianTool.AdditionalOptions">
+    <StringListProperty.DataSource>
+      <DataSource Persistence="ProjectFile" ItemType="Lib" Label="" HasConfigurationCondition="true" />
+    </StringListProperty.DataSource>
+  </StringListProperty>
 
   <StringListProperty Name="AdditionalDependencies"
                       DisplayName="Additional Dependencies"
                       Description="Specifies additional items to add to the library."
                       Category="Advanced"
-                      F1Keyword="VC.Project.VCLibrarianTool.AdditionalDependencies" />
+                      F1Keyword="VC.Project.VCLibrarianTool.AdditionalDependencies">
+    <StringListProperty.DataSource>
+      <DataSource Persistence="ProjectFile" ItemType="Lib" Label="" HasConfigurationCondition="true" />
+    </StringListProperty.DataSource>
+  </StringListProperty>
 
 </Rule>
