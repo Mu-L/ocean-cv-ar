@@ -1768,10 +1768,13 @@ std::vector<TestImageIO::ColorProfilePair> TestImageIO::getColorProfilePairsForI
 
 	// On macOS 14+ / iOS 17+, Apple renamed the ICC profile description for kCGColorSpaceGenericRGBLinear
 	// from "Generic HDR Profile" to "Generic RGB Linear Profile".
+	unsigned int majorVersion = 0u;
+	Platform::Apple::System::version(&majorVersion);
+
 #ifdef OCEAN_PLATFORM_BUILD_APPLE_IOS_ANY
-	const bool usesNewColorProfileNames = Platform::Apple::System::isMinimalVersion(17u, 0u);
+	const bool usesNewColorProfileNames = majorVersion >= 17u;
 #else
-	const bool usesNewColorProfileNames = Platform::Apple::System::isMinimalVersion(14u, 0u);
+	const bool usesNewColorProfileNames = majorVersion >= 14u;
 #endif
 
 	const std::string genericRGBLinearProfileName = usesNewColorProfileNames ? "Generic RGB Linear Profile" : "Generic HDR Profile";
