@@ -26,6 +26,9 @@
     <ClInclude Include="..\..\..\..\..\..\..\impl\ocean\test\testmedia\TestMovie.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\..\impl\ocean\test\testmedia\TestMediaFoundation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\..\..\impl\ocean\test\testmedia\TestMedia.cpp">
@@ -41,6 +44,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\..\impl\ocean\test\testmedia\TestMovie.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\..\impl\ocean\test\testmedia\TestMediaFoundation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

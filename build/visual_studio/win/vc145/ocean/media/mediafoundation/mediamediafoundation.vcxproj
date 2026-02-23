@@ -124,6 +124,8 @@
     <ClInclude Include="..\..\..\..\..\..\..\impl\ocean\media\mediafoundation\MFSoundMedium.h" />
     <ClInclude Include="..\..\..\..\..\..\..\impl\ocean\media\mediafoundation\SampleGrabber.h" />
     <ClInclude Include="..\..\..\..\..\..\..\impl\ocean\media\mediafoundation\Utilities.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\impl\ocean\media\mediafoundation\VideoDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\impl\ocean\media\mediafoundation\VideoEncoder.h" />
     <ClInclude Include="..\..\..\..\..\..\..\impl\ocean\media\mediafoundation\Plugin.h" />
   </ItemGroup>
   <ItemGroup>
@@ -150,6 +152,8 @@
     <ClCompile Include="..\..\..\..\..\..\..\impl\ocean\media\mediafoundation\MFSoundMedium.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\impl\ocean\media\mediafoundation\SampleGrabber.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\impl\ocean\media\mediafoundation\Utilities.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\impl\ocean\media\mediafoundation\VideoDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\impl\ocean\media\mediafoundation\VideoEncoder.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\impl\ocean\media\mediafoundation\Plugin.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

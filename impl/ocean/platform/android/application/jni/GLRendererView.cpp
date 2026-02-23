@@ -15,7 +15,7 @@ using namespace Ocean;
 using namespace Ocean::Platform::Android;
 using namespace Ocean::Platform::Android::Application;
 
-jboolean Java_com_meta_ocean_platform_android_application_GLRendererView_setFovX(JNIEnv* env, jobject javaThis, jdouble angle)
+jboolean Java_com_meta_ocean_platform_android_application_GLRendererView_setFovX(JNIEnv* /*env*/, jobject /*javaThis*/, jdouble angle)
 {
 	try
 	{
@@ -30,19 +30,19 @@ jboolean Java_com_meta_ocean_platform_android_application_GLRendererView_setFovX
 	}
 	catch (...)
 	{
-		Log::error() << "Uncaught exception occured!";
+		Log::error() << "Uncaught exception occurred!";
 		return false;
 	}
 
 	return true;
 }
 
-jboolean Java_com_meta_ocean_platform_android_application_GLRendererView_setBackgroundColor(JNIEnv* env, jobject javaThis, jdouble red, jdouble green, jdouble blue)
+jboolean Java_com_meta_ocean_platform_android_application_GLRendererView_setBackgroundColor(JNIEnv* /*env*/, jobject /*javaThis*/, jdouble red, jdouble green, jdouble blue)
 {
 	return GLView::get<GLRendererView>().setBackgroundColor(RGBAColor(float(red), float(green), float(blue)));
 }
 
-void Java_com_meta_ocean_platform_android_application_GLRendererView_registerInstance(JNIEnv* env, jobject javaThis)
+void Java_com_meta_ocean_platform_android_application_GLRendererView_registerInstance(JNIEnv* /*env*/, jobject /*javaThis*/)
 {
 	GLView::registerInstanceFunction(GLRendererView::createInstance, true /*isBaseClass*/);
 }

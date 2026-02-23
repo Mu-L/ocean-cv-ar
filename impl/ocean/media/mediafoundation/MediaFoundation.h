@@ -33,6 +33,7 @@ DISABLE_WARNINGS_BEGIN
 	#include <ksproxy.h>
 	#include <mfapi.h>
 	#include <mfidl.h>
+	#include <mftransform.h>
 DISABLE_WARNINGS_END
 
 namespace Ocean
@@ -213,6 +214,13 @@ using ScopedIMFTopology = ScopedMediaFoundationObject<IMFTopology>;
  * @ingroup mediamf
  */
 using ScopedIMFTopologyNode = ScopedMediaFoundationObject<IMFTopologyNode>;
+
+/**
+ * Definition of a scoped object holding a IMFTransform object.
+ * The wrapped IMFTransform object will be released automatically once the scoped object does not exist anymore.
+ * @ingroup mediamf
+ */
+using ScopedIMFTransform = ScopedMediaFoundationObject<IMFTransform>;
 
 template <class T>
 void release(T *object)

@@ -149,7 +149,7 @@ size_t HTTPSClient::CurlSessionData::onNewData(char* ptr, size_t size, size_t nm
 	return nmemb;
 }
 
-int HTTPSClient::CurlSessionData::onProgress(void* clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)
+int HTTPSClient::CurlSessionData::onProgress(void* clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t /*ultotal*/, curl_off_t /*ulnow*/)
 {
 	ocean_assert(clientp != nullptr);
 

@@ -19,6 +19,7 @@
 #endif
 
 #ifdef OCEAN_PLATFORM_BUILD_WINDOWS
+	#include "ocean/test/testmedia/TestMediaFoundation.h"
 	#include "ocean/test/testmedia/TestWIC.h"
 #endif
 
@@ -138,6 +139,16 @@ bool testMedia(const double testDuration, Worker& /*worker*/, const std::string&
 		Log::info() << " ";
 
 		testResult = TestWIC::test(testDuration, subSelector);
+	}
+
+	if (TestSelector subSelector = selector.shouldRun("mediafoundation"))
+	{
+		Log::info() << " ";
+		Log::info() << " ";
+		Log::info() << " ";
+		Log::info() << " ";
+
+		testResult = TestMediaFoundation::test(testDuration, subSelector);
 	}
 
 #endif
