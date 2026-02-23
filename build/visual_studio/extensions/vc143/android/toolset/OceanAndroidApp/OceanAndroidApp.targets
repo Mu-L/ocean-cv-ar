@@ -28,6 +28,11 @@
     </OceanNativeSharedLibrary>
   </ItemDefinitionGroup>
 
+  <!-- Trim leading semicolon from OceanNativeSharedLibraries accumulated by _use.props -->
+  <PropertyGroup>
+    <OceanNativeSharedLibraries>$(OceanNativeSharedLibraries.TrimStart(';'))</OceanNativeSharedLibraries>
+  </PropertyGroup>
+
   <!-- ============================================================
        Property Page Schemas
 
@@ -42,6 +47,10 @@
 
   <ItemGroup Condition="Exists('$(MSBuildThisFileDirectory)PropertyPages\OceanAndroidApp.General.xml')">
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)PropertyPages\OceanAndroidApp.General.xml" />
+  </ItemGroup>
+
+  <ItemGroup Condition="Exists('$(MSBuildThisFileDirectory)PropertyPages\OceanAndroidApp.NativeLibraries.xml')">
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)PropertyPages\OceanAndroidApp.NativeLibraries.xml" />
   </ItemGroup>
 
   <!-- Project Capabilities for VS extension integration (AndroidDeployHandler) -->
@@ -150,7 +159,7 @@
        ============================================================ -->
   <Target Name="CopyNativeLibsToJniLibs"
           BeforeTargets="CoreBuild;Build"
-          Condition="'@(OceanNativeSharedLibrary)' != ''">
+          Condition="'@(OceanNativeSharedLibrary)' != '' OR '$(AdditionalNativeLibraries)' != ''">
 
     <!-- Determine jniLibs destination based on ABI -->
     <!-- Prefer JniLibsStagingDir (set by Ocean props hierarchy) so Gradle finds the .so files.
@@ -163,16 +172,40 @@
     <!-- Create jniLibs directory if needed -->
     <MakeDir Directories="$(JniLibsDir)" />
 
-    <!-- Copy native libraries -->
+    <!-- Copy inherited native libraries -->
     <Copy SourceFiles="@(OceanNativeSharedLibrary)"
           DestinationFolder="$(JniLibsDir)"
-          SkipUnchangedFiles="true">
+          SkipUnchangedFiles="true"
+          Condition="'@(OceanNativeSharedLibrary)' != ''">
       <Output TaskParameter="CopiedFiles" ItemName="_CopiedNativeLibs" />
     </Copy>
 
     <Message Text="[OceanAndroid] Copied native library to jniLibs: %(_CopiedNativeLibs.Identity)"
              Importance="high"
              Condition="'@(_CopiedNativeLibs)' != ''" />
+
+    <!-- Resolve additional native libraries from search directories -->
+    <ItemGroup Condition="'$(AdditionalNativeLibraries)' != ''">
+      <_AdditionalNativeLibs Include="$(AdditionalNativeLibraries)" />
+      <_ResolvedAdditionalNativeLibs Include="@(_AdditionalNativeLibs)"
+                                     Condition="Exists('%(Identity)')" />
+      <_SearchDirs Include="$(NativeLibrarySearchDirectories)" />
+      <!-- Cross-product batching: checks every combination of search dir × library name -->
+      <_ResolvedAdditionalNativeLibs Include="%(_SearchDirs.Identity)\%(_AdditionalNativeLibs.Identity)"
+                                     Condition="Exists('%(_SearchDirs.Identity)\%(_AdditionalNativeLibs.Identity)')" />
+    </ItemGroup>
+
+    <!-- Copy additional native libraries -->
+    <Copy SourceFiles="@(_ResolvedAdditionalNativeLibs)"
+          DestinationFolder="$(JniLibsDir)"
+          SkipUnchangedFiles="true"
+          Condition="'@(_ResolvedAdditionalNativeLibs)' != ''">
+      <Output TaskParameter="CopiedFiles" ItemName="_CopiedAdditionalNativeLibs" />
+    </Copy>
+
+    <Message Text="[OceanAndroid] Copied additional native library to jniLibs: %(_CopiedAdditionalNativeLibs.Identity)"
+             Importance="high"
+             Condition="'@(_CopiedAdditionalNativeLibs)' != ''" />
   </Target>
 
   <!-- ============================================================

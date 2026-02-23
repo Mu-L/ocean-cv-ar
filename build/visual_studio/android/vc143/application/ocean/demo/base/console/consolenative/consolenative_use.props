@@ -16,9 +16,15 @@
     <OceanNativeSharedLibrary Include="$(OutDir)libOceanDemoBaseConsole.so" />
     <OceanNativeSharedLibrary Include="$(OutDir)libc++_shared.so" />
   </ItemGroup>
+  <PropertyGroup Condition="$(Configuration.Contains('Debug'))">
+    <OceanNativeSharedLibraries>$(OceanNativeSharedLibraries);libOceanDemoBaseConsole.so;libc++_shared.so</OceanNativeSharedLibraries>
+  </PropertyGroup>
 
   <ItemGroup Condition="!$(Configuration.Contains('Debug'))">
     <OceanNativeSharedLibrary Include="$(OutDir)libOceanDemoBaseConsole.so" />
     <OceanNativeSharedLibrary Include="$(OutDir)libc++_shared.so" />
   </ItemGroup>
+  <PropertyGroup Condition="!$(Configuration.Contains('Debug'))">
+    <OceanNativeSharedLibraries>$(OceanNativeSharedLibraries);libOceanDemoBaseConsole.so;libc++_shared.so</OceanNativeSharedLibraries>
+  </PropertyGroup>
 </Project>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Ocean Android Extension - Native Libraries Property Page Schema
+
+  Defines the "Native Libraries" property page for Android Application projects
+  in Visual Studio. Allows specifying additional native shared libraries (.so)
+  and search directories for APK packaging.
+-->
+<Rule Name="OceanAndroidApp_NativeLibraries"
+      DisplayName="Native Libraries"
+      Description="Native shared library (.so) settings for Android application packaging"
+      PageTemplate="generic"
+      Order="25"
+      xmlns="http://schemas.microsoft.com/build/2009/properties"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+  <Rule.Categories>
+    <Category Name="General" DisplayName="General" Description="Native shared library settings" />
+  </Rule.Categories>
+
+  <Rule.DataSource>
+    <DataSource Persistence="ProjectFile" Label="Configuration" />
+  </Rule.DataSource>
+
+  <StringProperty Name="OceanNativeSharedLibraries"
+                  DisplayName="Native Shared Libraries"
+                  Description="Native shared libraries (.so) inherited from the _use.props dependency chain. These are automatically copied to jniLibs during build."
+                  Category="General"
+                  ReadOnly="true"
+                  Subtype="multiline"
+                  F1Keyword="VC.Project.OceanNativeSharedLibraries">
+    <StringProperty.DataSource>
+      <DataSource Persistence="ProjectFile" Label="" />
+    </StringProperty.DataSource>
+  </StringProperty>
+
+  <StringProperty Name="AdditionalNativeLibraries"
+                  DisplayName="Additional Native Libraries"
+                  Description="Additional native shared library (.so) files to include in the APK. Enter one filename per line, or separate with semicolons (e.g., libMyLib.so). Files are resolved against Native Library Search Directories. Libraries inherited from _use.props imports are included automatically."
+                  Category="General"
+                  Subtype="multiline"
+                  F1Keyword="VC.Project.AdditionalNativeLibraries">
+    <StringProperty.DataSource>
+      <DataSource Persistence="ProjectFile" Label="" />
+    </StringProperty.DataSource>
+  </StringProperty>
+
+  <StringProperty Name="NativeLibrarySearchDirectories"
+                  DisplayName="Native Library Search Directories"
+                  Description="Directories to search for additional native libraries. Enter one directory per line, or separate with semicolons. Use MSBuild properties like $(OutDir) for paths."
+                  Category="General"
+                  Subtype="multiline"
+                  F1Keyword="VC.Project.NativeLibrarySearchDirectories">
+    <StringProperty.DataSource>
+      <DataSource Persistence="ProjectFile" Label="" />
+    </StringProperty.DataSource>
+  </StringProperty>
+
+</Rule>
