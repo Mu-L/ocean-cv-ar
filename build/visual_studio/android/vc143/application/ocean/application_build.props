@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Build Application (Android)</_PropertySheetDisplayName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ocean_application_build_imported>True</ocean_application_build_imported>
+  </PropertyGroup>
+
+  <ImportGroup Label="Dependencies">
+    <Import Condition="'$(ocean_common_imported)' != 'True'" Project="..\..\ocean_common.props"/>
+  </ImportGroup>
+
+  <!-- Android native applications produce a single .so that statically links all Ocean
+       dependencies. Override the build type and config folder so that Shared configurations
+       resolve to the Static library search paths. -->
+  <PropertyGroup Condition="$(Configuration.StartsWith('Shared'))">
+    <OceanBuildType>static</OceanBuildType>
+    <OceanConfigFolder>android_$(OceanPlatformSuffix)_$(OceanCompilerVersion)_static$(OceanConfigSuffix)</OceanConfigFolder>
+  </PropertyGroup>
+
+  <!-- Add the static library directory to the linker search path (ocean_common.props already
+       set AdditionalLibraryDirectories using the original OceanConfigFolder before our override) -->
+  <ItemDefinitionGroup Condition="$(Configuration.StartsWith('Shared'))">
+    <Link>
+      <AdditionalLibraryDirectories>$(OceanRootPath)bin\lib\$(OceanConfigFolder);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>

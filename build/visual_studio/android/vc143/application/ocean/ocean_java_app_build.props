@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Build Ocean Java Apps (Android)</_PropertySheetDisplayName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ocean_java_app_build_imported>True</ocean_java_app_build_imported>
+  </PropertyGroup>
+
+  <!-- Redirect Gradle build directories to IntDir.
+       The OceanAndroidCommon.props extension computes these from its default project-local
+       IntDir before the Ocean props hierarchy overrides it. Re-derive them here so that
+       Gradle artifacts land in the Ocean bin tree alongside native build output. -->
+  <PropertyGroup>
+    <GradleBuildDir>$(IntDir)gradle-build</GradleBuildDir>
+    <GradleCacheDir>$(IntDir)gradle-cache</GradleCacheDir>
+    <JavaStagingDir>$(IntDir)java-staging</JavaStagingDir>
+    <JniLibsStagingDir>$(IntDir)jniLibs</JniLibsStagingDir>
+  </PropertyGroup>
+
+  <!-- Java-specific configuration suffix for locating Java library AARs.
+       Java apps use Debug/Release configurations (not Static/Shared), matching the
+       Java library output folders. Same logic as ocean_java_library_build.props. -->
+  <PropertyGroup>
+    <OceanJavaConfigSuffix Condition="$(Configuration.Contains('Debug'))">_debug</OceanJavaConfigSuffix>
+    <OceanJavaConfigSuffix Condition="!$(Configuration.Contains('Debug'))"></OceanJavaConfigSuffix>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <OceanJavaConfigFolder Condition="'$(OceanJavaConfigFolder)' == ''">android_$(OceanPlatformSuffix)_$(OceanCompilerVersion)$(OceanJavaConfigSuffix)</OceanJavaConfigFolder>
+  </PropertyGroup>
+
+  <!-- Directory containing local AAR files built by Java library projects -->
+  <PropertyGroup>
+    <GradleLocalAARDir Condition="'$(GradleLocalAARDir)' == ''">$(OceanRootPath)bin\java\$(OceanJavaConfigFolder)</GradleLocalAARDir>
+  </PropertyGroup>
+</Project>
