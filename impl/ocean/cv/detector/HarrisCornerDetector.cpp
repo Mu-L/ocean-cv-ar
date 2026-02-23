@@ -117,53 +117,16 @@ bool HarrisCornerDetector::PreciseCornerPosition::precisePosition(const unsigned
 
 #endif
 
-	const int32_t& vote00 = harrisVotes[0][0];
-	const int32_t& vote01 = harrisVotes[0][1];
-	const int32_t& vote02 = harrisVotes[0][2];
-
-	const int32_t& vote10 = harrisVotes[1][0];
-	const int32_t& vote11 = harrisVotes[1][1];
-	const int32_t& vote12 = harrisVotes[1][2];
-
-	const int32_t& vote20 = harrisVotes[2][0];
-	const int32_t& vote21 = harrisVotes[2][1];
-	const int32_t& vote22 = harrisVotes[2][2];
-
-	ocean_assert(vote11 == strength); // we have determine this vote already when determining the pixel-precise location of this corner
-
-	ocean_assert(vote11 >= vote00 && vote11 >= vote01 && vote11 >= vote02);
-	ocean_assert(vote11 >= vote10 && vote11 > vote12);
-	ocean_assert(vote11 >= vote20 && vote11 > vote21 && vote11 > vote22);
-
-	preciseX = Scalar(x);
-	preciseY = Scalar(y);
-
-	// [-1 0 1] * 1/2
-	const Scalar dx = Scalar(vote12 - vote10) * Scalar(0.5);
-	const Scalar dy = Scalar(vote21 - vote01) * Scalar(0.5);
-
-	// [1 -2 1] * 1/1
-	const Scalar dxx = Scalar(vote12 + vote10 - vote11 * 2);
-	const Scalar dyy = Scalar(vote21 + vote01 - vote11 * 2);
-
-	// [ 1  0 -1 ]
-	// [ 0  0  0 ] * 1/4
-	// [-1  0  1 ]
-
-	const Scalar dxy = Scalar(vote22 + vote00 - vote20 - vote02) * Scalar(0.25);
-
-	const Scalar denominator = dxx * dyy - dxy * dxy;
-	const Scalar factor = Numeric::isEqualEps(denominator) ? 0 : Scalar(1) / denominator;
-
-	const Scalar offsetX = (dyy * dx - dxy * dy) * factor;
-	const Scalar offsetY = (dxx * dy - dxy * dx) * factor;
-
-	// check for invalid maximum
-	if (offsetX >= -1 && offsetX <= 1 && offsetY >= -1 && offsetY <= 1)
+	Vector2 offset;
+	if (NonMaximumSuppressionVote::determinePrecisePeakLocation2<Scalar>(harrisVotes[0], harrisVotes[1], harrisVotes[2], offset))
 	{
-		// **TODO** do we need to add an explicit offset of (0.5, 0.5), due to the center of a pixel?
-		preciseX = Scalar(x) - offsetX;
-		preciseY = Scalar(y) - offsetY;
+		preciseX = Scalar(x) + offset.x();
+		preciseY = Scalar(y) + offset.y();
+	}
+	else
+	{
+		preciseX = Scalar(x);
+		preciseY = Scalar(y);
 	}
 
 	preciseStrength = strength;

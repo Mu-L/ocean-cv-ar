@@ -855,8 +855,8 @@ bool NonMaximumSuppressionT<T>::determinePrecisePeakLocation2(const T* const top
 	const TFloat dy = TFloat(value21 - value01) * TFloat(0.5);
 
 	// [1 -2 1] * 1/1
-	const TFloat dxx = TFloat(value12 + value10 - value11 * TFloat(2));
-	const TFloat dyy = TFloat(value21 + value01 - value11 * TFloat(2));
+	const TFloat dxx = TFloat(value12 + value10) - TFloat(value11) * TFloat(2);
+	const TFloat dyy = TFloat(value21 + value01) - TFloat(value11) * TFloat(2);
 
 	// [ 1  0 -1 ]
 	// [ 0  0  0 ] * 1/4
