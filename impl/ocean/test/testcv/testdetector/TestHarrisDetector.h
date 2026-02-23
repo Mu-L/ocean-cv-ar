@@ -89,6 +89,14 @@ class OCEAN_TEST_CV_DETECTOR_EXPORT TestHarrisDetector
 		static bool testSubFrameDetection(const double testDuration, Worker& worker, const Frame& yFrameTest = Frame());
 
 		/**
+		 * Tests the precise corner detection function is a hard-coded image.
+		 * @param testDuration Number of seconds for each test, with range (0, infinity)
+		 * @param worker The worker object
+		 * @return True, if succeeded
+		 */
+		static bool testPreciseCornerDetection(const double testDuration, Worker& worker);
+
+		/**
 		 * Tests the corner detection function in a checkerboard image.
 		 * @param testDuration Number of seconds for each test, with range (0, infinity)
 		 * @param worker The worker object
@@ -164,6 +172,14 @@ class OCEAN_TEST_CV_DETECTOR_EXPORT TestHarrisDetector
 		 * @return True, if the first object is lesser than the second object
 		 */
 		static bool sortHarris(const CV::Detector::HarrisCorner& a, const CV::Detector::HarrisCorner& b);
+
+		/**
+		 * Sorts two positions so that the y-position is the major sorting criterion and the x-position is the minor sorting criterion.
+		 * @param positionA First position
+		 * @param positionB Second position
+		 * @return True, if the first position is lesser than the second position
+		 */
+		static bool sortPosition(const Vector2& positionA, const Vector2& positionB);
 
 		/**
 		 * Performs a rounded division of integer values.

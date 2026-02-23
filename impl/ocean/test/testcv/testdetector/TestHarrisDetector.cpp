@@ -94,6 +94,15 @@ bool TestHarrisDetector::test(const Frame& frame, const double testDuration, Wor
 		Log::info() << " ";
 	}
 
+	if (selector.shouldRun("precisecornerdetection"))
+	{
+		testResult = testPreciseCornerDetection(testDuration, worker);
+
+		Log::info() << " ";
+		Log::info() << "-";
+		Log::info() << " ";
+	}
+
 	if (selector.shouldRun("checkerboarddetection"))
 	{
 		testResult = testCheckerboardDetection(testDuration, worker);
@@ -152,6 +161,12 @@ TEST(TestHarrisDetector, SubframeDetection)
 {
 	Worker worker;
 	EXPECT_TRUE(TestHarrisDetector::testSubFrameDetection(GTEST_TEST_DURATION, worker));
+}
+
+TEST(TestHarrisDetector, PreciseCornerDetection)
+{
+	Worker worker;
+	EXPECT_TRUE(TestHarrisDetector::testPreciseCornerDetection(GTEST_TEST_DURATION, worker));
 }
 
 TEST(TestHarrisDetector, CheckerboardDetection)
@@ -589,6 +604,126 @@ bool TestHarrisDetector::testSubFrameDetection(const double testDuration, Worker
 					OCEAN_EXPECT_TRUE(validation, found);
 				}
 			}
+		}
+	}
+	while (!startTimestamp.hasTimePassed(testDuration));
+
+	Log::info() << "Validation: " << validation;
+
+	return validation.succeeded();
+}
+
+bool TestHarrisDetector::testPreciseCornerDetection(const double testDuration, Worker& worker)
+{
+	ocean_assert(testDuration > 0.0);
+
+	Log::info() << "Testing precise corner detection:";
+
+	RandomGenerator randomGenerator;
+	Validation validation(randomGenerator);
+
+	const Timestamp startTimestamp(true);
+
+	do
+	{
+		const unsigned int frameWidth = RandomI::random(randomGenerator, 40u, 2000u);
+		const unsigned int frameHeight = RandomI::random(randomGenerator, 40u, 2000u);
+
+		const unsigned int rectangleWidth = RandomI::random(randomGenerator, 10u, frameWidth / 2u);
+		const unsigned int rectangleHeight = RandomI::random(randomGenerator, 10u, frameHeight / 2u);
+
+		const unsigned int rectangleLeft = RandomI::random(randomGenerator, 10u, frameWidth - rectangleWidth - 10u);
+		const unsigned int rectangleTop = RandomI::random(randomGenerator, 10u, frameHeight - rectangleHeight - 10u);
+
+		unsigned int paddingElements = 0u;
+
+		if (RandomI::boolean(randomGenerator))
+		{
+			paddingElements = RandomI::random(randomGenerator, 1u, 100u);
+		}
+
+		Frame yFrame(FrameType(frameWidth, frameHeight, FrameType::FORMAT_Y8, FrameType::ORIGIN_UPPER_LEFT), paddingElements);
+
+		yFrame.setValue(0xFFu);
+		yFrame.subFrame(rectangleLeft, rectangleTop, rectangleWidth, rectangleHeight).setValue(0x00u);
+
+		constexpr unsigned int threshold = 30u;
+
+		const bool useWorker = RandomI::boolean(randomGenerator);
+
+		CV::Detector::HarrisCorners harrisCorners;
+		if (CV::Detector::HarrisCornerDetector::detectCorners(yFrame, threshold, true, harrisCorners, true, useWorker ? &worker : nullptr))
+		{
+			OCEAN_EXPECT_EQUAL(validation, harrisCorners.size(), size_t(4));
+
+			Vectors2 corners = CV::Detector::HarrisCorner::corners2imagePoints(harrisCorners);
+
+			std::sort(corners.begin(), corners.end(), sortPosition);
+
+			if (corners.size() == 4)
+			{
+				const Vector2& topLeft = corners[0];
+				const Vector2& topRight = corners[1];
+				const Vector2& bottomLeft = corners[2];
+				const Vector2& bottomRight = corners[3];
+
+				const Vector2 rectangleTopLeft = Vector2(Scalar(rectangleLeft), Scalar(rectangleTop)); // inclusive corner pixels (pixels with rectangle color)
+				const Vector2 rectangleTopRight = Vector2(Scalar(rectangleLeft + rectangleWidth - 1u), Scalar(rectangleTop));
+				const Vector2 rectangleBottomLeft = Vector2(Scalar(rectangleLeft), Scalar(rectangleTop + rectangleHeight - 1u));
+				const Vector2 rectangleBottomRight = Vector2(Scalar(rectangleLeft + rectangleWidth - 1u), Scalar(rectangleTop + rectangleHeight - 1u));
+
+				const Scalar offset = Scalar(0.265);
+
+				/*
+				 * The actual detected Harris corner is ~25% inwards of the actual corner pixel.
+				 * The X marks the four detected corners within the black rectangle.
+				 *
+				 *             Black rectangle
+				 *             --------------------        ...        --------------------
+				 *            | X         |           |           |           |         X |       ^
+				 *            | ^         |           |           |           |           |       |
+				 *            | ~0.265px  |                                   |           |    1 pixel
+				 *            |           |                                   |           |       |
+				 *            |           |                                   |           |       v
+				 *             --------------------        ...        --------------------
+				 *                        .                                   .
+				 *                        .                                   .
+				 *                        .                                   .
+				 *             --------------------        ...        --------------------
+				 *            |           |                                   |           |       ^
+				 *            |           |                                   |           |       |
+				 *            |           |                                   |           |    1 pixel
+				 *            |           |           |           |           |           |       |
+				 *            | X         |           |           |           |         X |       v
+				 *             --------------------        ...        --------------------
+				 *             <-1 pixel-> <-1 pixel->             <-1 pixel-> <-1 pixel->
+				 */
+
+				const Vector2 expectedTopLeft = rectangleTopLeft + Vector2(offset, offset);
+				const Vector2 expectedTopRight = rectangleTopRight + Vector2(-offset, offset);
+				const Vector2 expectedBottomLeft = rectangleBottomLeft + Vector2(offset, -offset);
+				const Vector2 expectedBottomRight = rectangleBottomRight + Vector2(-offset, -offset);
+
+				const Scalar distanceTopLeft = (topLeft - expectedTopLeft).length();
+				OCEAN_EXPECT_LESS_EQUAL(validation, distanceTopLeft, Scalar(0.1));
+
+				const Scalar distanceTopRight = (topRight - expectedTopRight).length();
+				OCEAN_EXPECT_LESS_EQUAL(validation, distanceTopRight, Scalar(0.1));
+
+				const Scalar distanceBottomLeft = (bottomLeft - expectedBottomLeft).length();
+				OCEAN_EXPECT_LESS_EQUAL(validation, distanceBottomLeft, Scalar(0.1));
+
+				const Scalar distanceBottomRight = (bottomRight - expectedBottomRight).length();
+				OCEAN_EXPECT_LESS_EQUAL(validation, distanceBottomRight, Scalar(0.1));
+			}
+			else
+			{
+				OCEAN_SET_FAILED(validation);
+			}
+		}
+		else
+		{
+			OCEAN_SET_FAILED(validation);
 		}
 	}
 	while (!startTimestamp.hasTimePassed(testDuration));
@@ -1097,6 +1232,11 @@ int TestHarrisDetector::harrisVote3x3(const Frame& yFrame, const unsigned int x,
 bool TestHarrisDetector::sortHarris(const CV::Detector::HarrisCorner& a, const CV::Detector::HarrisCorner& b)
 {
 	return a.observation().x() < b.observation().x() || (a.observation().x() == b.observation().x() && a.observation().y() < b.observation().y());
+}
+
+bool TestHarrisDetector::sortPosition(const Vector2& positionA, const Vector2& positionB)
+{
+	return positionA.y() < positionB.y() || (positionA.y() == positionB.y() && positionA.x() < positionB.x());
 }
 
 }
