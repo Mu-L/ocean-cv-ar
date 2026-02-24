@@ -18,6 +18,11 @@
     <AndroidMainActivityName>DemoConsoleActivity</AndroidMainActivityName>
   </PropertyGroup>
 
+  <!-- Android resources directory (external to project folder) -->
+  <PropertyGroup>
+    <AndroidResDir>$(MSBuildProjectDirectory)\..\..\..\..\..\..\..\..\..\..\res\application\ocean\demo\base\console\android\res</AndroidResDir>
+  </PropertyGroup>
+
   <ImportGroup Label="Dependencies">
     <Import Condition="'$(ocean_applicationdemobase_build_imported)' != 'True'" Project="..\..\application_demo_base_build.props"/>
     <Import Condition="'$(ocean_java_app_build_imported)' != 'True'" Project="..\..\..\..\ocean_java_app_build.props"/>

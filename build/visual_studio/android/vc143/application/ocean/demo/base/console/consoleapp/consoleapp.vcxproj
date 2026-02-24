@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
   Ocean Android Application Project
   Uses VC Makefile project type with Gradle build integration.
@@ -6,7 +6,7 @@
 <Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Project configurations - Debug/Release for each platform -->
   <ItemGroup Label="ProjectConfigurations">
-    <!-- ARM64 configurations -->
+
     <ProjectConfiguration Include="Debug|ARM64">
       <Configuration>Debug</Configuration>
       <Platform>ARM64</Platform>
@@ -15,7 +15,7 @@
       <Configuration>Release</Configuration>
       <Platform>ARM64</Platform>
     </ProjectConfiguration>
-    <!-- ARM configurations -->
+
     <ProjectConfiguration Include="Debug|ARM">
       <Configuration>Debug</Configuration>
       <Platform>ARM</Platform>
@@ -24,7 +24,7 @@
       <Configuration>Release</Configuration>
       <Platform>ARM</Platform>
     </ProjectConfiguration>
-    <!-- x64 configurations -->
+
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
@@ -34,24 +34,24 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <!-- Global project properties -->
+
   <PropertyGroup Label="Globals">
     <ProjectGuid>{d5f0f3d4-21d2-4d69-bf50-c85594cdb76d}</ProjectGuid>
     <RootNamespace>consoleapp</RootNamespace>
     <ProjectName>consoleapp</ProjectName>
     <Keyword>Android</Keyword>
-    <!-- Use Makefile project type - build is handled by Gradle -->
+
     <ConfigurationType>Makefile</ConfigurationType>
-    <!-- Android-specific properties -->
+
     <AndroidPackageName>com.meta.ocean.app.demo.base.console.android</AndroidPackageName>
     <OutputType>AndroidApplication</OutputType>
     <AndroidMinSdkVersion>24</AndroidMinSdkVersion>
     <AndroidTargetSdkVersion>34</AndroidTargetSdkVersion>
     <JavaVersion>VERSION_17</JavaVersion>
   </PropertyGroup>
-  <!-- Import VCTargets Default Props -->
+
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <!-- Android SDK, Java Home, output directories, and Gradle infrastructure (shared props from extension) -->
+
   <PropertyGroup>
     <_OceanExtensionPath Condition="'$(_OceanExtensionPath)' == ''">$([MSBuild]::GetRegistryValueFromView('HKEY_CURRENT_USER\Software\OceanAndroidExtension', 'ExtensionPath', '', RegistryView.Default))</_OceanExtensionPath>
     <_OceanCommonPropsPath Condition="'$(_OceanExtensionPath)' != '' AND Exists('$(_OceanExtensionPath)\toolset\OceanAndroidCommon\OceanAndroidCommon.props')">$(_OceanExtensionPath)\toolset\OceanAndroidCommon\OceanAndroidCommon.props</_OceanCommonPropsPath>
@@ -65,54 +65,35 @@
     <Import Project="consoleapp_build.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <!-- ProjectGradleProperties is set by OceanAndroidApp.targets with App-specific
-       Gradle -P flags. Override here if you need custom parameters. -->
-  <!-- Project Items for Solution Explorer -->
+
   <ItemGroup>
-    <!-- Gradle build files -->
     <None Include="app\build.gradle.kts" />
     <None Include="gradle\build.gradle.kts" />
     <None Include="gradle\settings.gradle.kts" />
     <None Include="gradle\gradle.properties" />
   </ItemGroup>
+
   <ItemGroup>
-    <!-- Java sources - can include files from anywhere on the machine -->
-    <!-- The staging process reads package declarations and creates proper directory structure -->
     <JavaSource Include="..\..\..\..\..\..\..\..\..\..\impl\application\ocean\demo\base\console\android\DemoConsoleActivity.java" />
-    <!-- Example: Reference Java files from another location: -->
-    <!-- <JavaSource Include="..\shared\*.java" /> -->
   </ItemGroup>
-  <ItemGroup>
-    <!-- Android resources -->
-    <None Include="app\res\layout\activity_main.xml" />
-    <None Include="app\res\values\strings.xml" />
-    <None Include="app\res\values\colors.xml" />
-    <None Include="app\res\values\themes.xml" />
-    <None Include="app\res\drawable\ic_launcher_background.xml" />
-    <None Include="app\res\drawable\ic_launcher_foreground.xml" />
-    <None Include="app\res\mipmap-anydpi-v26\ic_launcher.xml" />
-    <None Include="app\res\mipmap-anydpi-v26\ic_launcher_round.xml" />
+
+ <ItemGroup>
+    <None Include="..\..\..\..\..\..\..\..\..\..\res\application\ocean\demo\base\console\android\res\drawable\ic_launcher_background.xml" />
+    <None Include="..\..\..\..\..\..\..\..\..\..\res\application\ocean\demo\base\console\android\res\drawable\ic_launcher_foreground.xml" />
+    <None Include="..\..\..\..\..\..\..\..\..\..\res\application\ocean\demo\base\console\android\res\values\strings.xml" />
+    <None Include="..\..\..\..\..\..\..\..\..\..\res\application\ocean\demo\base\console\android\res\values\ic_launcher_background.xml" />
   </ItemGroup>
+
   <ItemGroup>
     <AndroidManifest Include="..\..\..\..\..\..\..\..\..\..\impl\application\ocean\demo\base\console\android\AndroidManifest.xml" />
   </ItemGroup>
-  <!-- Native Library References -->
-  <!-- Add ProjectReference elements to native library projects here:
-  <ItemGroup>
-    <ProjectReference Include="..\MyNativeLib\MyNativeLib.vcxproj">
-      <CopyToJniLibs>true</CopyToJniLibs>
-    </ProjectReference>
-  </ItemGroup>
-  -->
+
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
-  <!-- Import shared targets (Java staging, Gradle wrapper, Java validation, and
-       app-specific targets auto-imported via OutputType=AndroidApplication) -->
+
   <PropertyGroup>
     <_OceanCommonTargetsPath Condition="'$(_OceanExtensionPath)' != '' AND Exists('$(_OceanExtensionPath)\toolset\OceanAndroidCommon\OceanAndroidCommon.targets')">$(_OceanExtensionPath)\toolset\OceanAndroidCommon\OceanAndroidCommon.targets</_OceanCommonTargetsPath>
   </PropertyGroup>
+
   <Import Project="$(_OceanCommonTargetsPath)" Condition="'$(_OceanCommonTargetsPath)' != '' AND Exists('$(_OceanCommonTargetsPath)')" />
-  <!-- Build, Clean, Rebuild targets provided by OceanAndroidCommon.targets. -->
-  <!-- Android manifest resolution, Deploy target, debug settings, APK output, and
-       NMakeOutput provided by OceanAndroidApp.targets (auto-imported). -->
 </Project>
