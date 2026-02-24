@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
@@ -250,11 +250,13 @@ public class AndroidLinkTask : CancelableTask
 			}
 		}
 
-		var stlLibraryDirectory = GetStlLibraryPath();
-		if (!string.IsNullOrEmpty(stlLibraryDirectory) && Directory.Exists(stlLibraryDirectory))
-		{
-			arguments.Append($"-L\"{stlLibraryDirectory}\" ");
-		}
+		// NOTE: We intentionally do NOT add the sysroot STL library path (e.g., <sysroot>/usr/lib/aarch64-linux-android).
+		// That directory contains libc.a (static) but NOT libc.so (dynamic). Adding it causes the linker to
+		// accidentally link static libc into shared libraries, which crashes because functions like getauxval()
+		// expect kernel-initialized state that isn't available for libraries loaded via dlopen().
+		//
+		// The clang driver with --sysroot already knows the correct library search paths, including the
+		// API-level-specific directory (e.g., <sysroot>/usr/lib/aarch64-linux-android/24) that contains libc.so.
 
 		foreach (var obj in ObjectFiles)
 		{
@@ -313,29 +315,6 @@ public class AndroidLinkTask : CancelableTask
 		}
 
 		return arguments.ToString();
-	}
-
-	/**
-	 * Returns the STL library path.
-	 * @return The STL library path
-	 */
-	private string GetStlLibraryPath()
-	{
-		var targetDirectory = AndroidAbi switch
-		{
-			"arm64-v8a" => "aarch64-linux-android",
-			"armeabi-v7a" => "arm-linux-androideabi",
-			"x86_64" => "x86_64-linux-android",
-			"x86" => "i686-linux-android",
-			_ => ""
-		};
-
-		if (string.IsNullOrEmpty(targetDirectory))
-		{
-			return string.Empty;
-		}
-
-		return Path.Combine(Sysroot, "usr", "lib", targetDirectory);
 	}
 
 	/**
