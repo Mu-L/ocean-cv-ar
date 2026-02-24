@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
@@ -463,7 +463,7 @@ public sealed class OceanAndroidExtensionPackage : AsyncPackage
 				return;
 			}
 
-			var dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+		var dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
 			if (dte == null)
 			{
 				outputService_?.WriteLine("Error: Could not access DTE service.");
@@ -479,63 +479,119 @@ public sealed class OceanAndroidExtensionPackage : AsyncPackage
 
 			string? projectDir = null;
 			string? gradleDir = null;
-			foreach (EnvDTE.Project project in dte.Solution.Projects)
+			string? packageName = null;
+			string? activityName = null;
+
+			// First, try to find the startup project
+			EnvDTE.Project? startupProject = null;
+			try
 			{
-				var projectPath = project.FullName;
-				if (!string.IsNullOrEmpty(projectPath))
+				var solutionBuild = dte.Solution.SolutionBuild;
+				if (solutionBuild?.StartupProjects is Array startupProjects && startupProjects.Length > 0)
 				{
-					var directory = System.IO.Path.GetDirectoryName(projectPath);
-					if (directory != null)
+					var startupProjectPath = startupProjects.GetValue(0) as string;
+					if (!string.IsNullOrEmpty(startupProjectPath))
 					{
-						// Check for gradlew.bat in multiple locations
-						// 1. Project root (Android Studio style)
-						if (System.IO.File.Exists(System.IO.Path.Combine(directory, "gradlew.bat")))
+						outputService_?.WriteLine($"Startup project path: {startupProjectPath}");
+						startupProject = FindProjectByUniqueName(dte.Solution, startupProjectPath);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				outputService_?.WriteLine($"Warning: Could not get startup project: {ex.Message}");
+			}
+
+			// Helper function to check if a project is an Android project
+			bool TryGetAndroidProjectInfo(EnvDTE.Project project, out string? projDir, out string? gradDir, out string? pkgName, out string? actName)
+			{
+				projDir = null;
+				gradDir = null;
+				pkgName = null;
+				actName = null;
+
+				var projectPath = project.FullName;
+				if (string.IsNullOrEmpty(projectPath))
+					return false;
+
+				var directory = System.IO.Path.GetDirectoryName(projectPath);
+				if (directory == null)
+					return false;
+
+				// Check for gradlew.bat in multiple locations
+				// 1. Project root (Android Studio style)
+				if (System.IO.File.Exists(System.IO.Path.Combine(directory, "gradlew.bat")))
+				{
+					projDir = directory;
+					gradDir = directory;
+					outputService_?.WriteLine($"Found Android project: {project.Name} (gradlew.bat in root)");
+					TryGetProjectProperties(projectPath, out pkgName, out actName);
+					return true;
+				}
+				// 2. gradle/ subdirectory (Ocean Android template style)
+				if (System.IO.File.Exists(System.IO.Path.Combine(directory, "gradle", "gradlew.bat")))
+				{
+					projDir = directory;
+					gradDir = System.IO.Path.Combine(directory, "gradle");
+					outputService_?.WriteLine($"Found Android project: {project.Name} (gradlew.bat in gradle/)");
+					TryGetProjectProperties(projectPath, out pkgName, out actName);
+					return true;
+				}
+				// 3. Check if it's an Ocean Android Application project (no local gradlew.bat)
+				if (projectPath.EndsWith(".vcxproj", StringComparison.OrdinalIgnoreCase))
+				{
+					try
+					{
+						var vcxprojContent = System.IO.File.ReadAllText(projectPath);
+						if (vcxprojContent.Contains("<OutputType>AndroidApplication</OutputType>"))
 						{
-							projectDir = directory;
-							gradleDir = directory;
-							outputService_?.WriteLine($"Found Android project: {project.Name} (gradlew.bat in root)");
-							break;
+							projDir = directory;
+							gradDir = System.IO.Path.Combine(directory, "gradle");
+							outputService_?.WriteLine($"Found Ocean Android Application project: {project.Name}");
+							TryGetProjectProperties(projectPath, out pkgName, out actName);
+							return true;
 						}
-						// 2. gradle/ subdirectory (Ocean Android template style)
-						if (System.IO.File.Exists(System.IO.Path.Combine(directory, "gradle", "gradlew.bat")))
+					}
+					catch { }
+				}
+				// 4. Check if it's a vcxproj with OceanNDK platform (native library without Gradle)
+				if (projectPath.EndsWith(".vcxproj", StringComparison.OrdinalIgnoreCase))
+				{
+					try
+					{
+						var vcxprojContent = System.IO.File.ReadAllText(projectPath);
+						if (vcxprojContent.Contains("OceanNDK") || vcxprojContent.Contains("<Keyword>Android</Keyword>"))
 						{
-							projectDir = directory;
-							gradleDir = System.IO.Path.Combine(directory, "gradle");
-							outputService_?.WriteLine($"Found Android project: {project.Name} (gradlew.bat in gradle/)");
-							break;
+							projDir = directory;
+							outputService_?.WriteLine($"Found Android native project: {project.Name} (OceanNDK)");
+							// No gradDir - this is a native-only project
+							return true;
 						}
-						// 3. Check if it's an Ocean Android Application project (no local gradlew.bat)
-						if (projectPath.EndsWith(".vcxproj", StringComparison.OrdinalIgnoreCase))
-						{
-							try
-							{
-								var vcxprojContent = System.IO.File.ReadAllText(projectPath);
-								if (vcxprojContent.Contains("<OutputType>AndroidApplication</OutputType>"))
-								{
-									projectDir = directory;
-									gradleDir = System.IO.Path.Combine(directory, "gradle");
-									outputService_?.WriteLine($"Found Ocean Android Application project: {project.Name}");
-									break;
-								}
-							}
-							catch { }
-						}
-						// 4. Check if it's a vcxproj with OceanNDK platform (native library without Gradle)
-						if (projectPath.EndsWith(".vcxproj", StringComparison.OrdinalIgnoreCase))
-						{
-							try
-							{
-								var vcxprojContent = System.IO.File.ReadAllText(projectPath);
-								if (vcxprojContent.Contains("OceanNDK") || vcxprojContent.Contains("Android"))
-								{
-									projectDir = directory;
-									outputService_?.WriteLine($"Found Android native project: {project.Name} (OceanNDK)");
-									// No gradleDir - this is a native-only project
-									break;
-								}
-							}
-							catch { }
-						}
+					}
+					catch { }
+				}
+				return false;
+			}
+
+			// If we have a startup project, check it first
+			if (startupProject != null)
+			{
+				outputService_?.WriteLine($"Checking startup project: {startupProject.Name}");
+				if (TryGetAndroidProjectInfo(startupProject, out projectDir, out gradleDir, out packageName, out activityName))
+				{
+					outputService_?.WriteLine($"Using startup project: {startupProject.Name}");
+				}
+			}
+
+			// If startup project wasn't an Android project, search all projects (including nested ones)
+			if (projectDir == null)
+			{
+				outputService_?.WriteLine("Searching all projects for Android project...");
+				foreach (var project in GetAllProjects(dte.Solution))
+				{
+					if (TryGetAndroidProjectInfo(project, out projectDir, out gradleDir, out packageName, out activityName))
+					{
+						break;
 					}
 				}
 			}
@@ -555,7 +611,72 @@ public sealed class OceanAndroidExtensionPackage : AsyncPackage
 				return;
 			}
 
-			var apkPath = FindApk(projectDir, gradleDir);
+			// Get the APK path from the project's output configuration (same as F5/Start)
+			// The APK path is: $(ApkOutputPath)\debug\app-debug.apk or $(ApkOutputPath)\release\app-release.apk
+			// For Ocean projects, ApkOutputPath = $(GradleBuildDir)\outputs\apk
+			// And GradleBuildDir = $(IntDir)gradle-build
+			string? apkPath = null;
+
+			// Try to find the APK using the same path structure as F5/Start
+			// Check gradle/build dir first (standard location for Ocean projects)
+			var gradleBuildOutputs = new[]
+			{
+				System.IO.Path.Combine(gradleDir, "build", "outputs", "apk", "debug", "app-debug.apk"),
+				System.IO.Path.Combine(gradleDir, "build", "outputs", "apk", "release", "app-release.apk"),
+				System.IO.Path.Combine(projectDir, "gradle", "build", "outputs", "apk", "debug", "app-debug.apk"),
+				System.IO.Path.Combine(projectDir, "gradle", "build", "outputs", "apk", "release", "app-release.apk"),
+			};
+
+			foreach (var path in gradleBuildOutputs)
+			{
+				if (System.IO.File.Exists(path))
+				{
+					apkPath = path;
+					break;
+				}
+			}
+
+			// If not found in gradle dir, try to get it from MSBuild properties via the project
+			if (apkPath == null && startupProject != null)
+			{
+				try
+				{
+					// Try to get the ApkOutputPath from project properties
+					var vcProject = startupProject.Object as dynamic;
+					if (vcProject != null)
+					{
+						// Get active configuration
+						var activeConfig = startupProject.ConfigurationManager?.ActiveConfiguration;
+						if (activeConfig != null)
+						{
+							var configName = activeConfig.ConfigurationName;
+							var platformName = activeConfig.PlatformName;
+							outputService_?.WriteLine($"Active configuration: {configName}|{platformName}");
+
+							// Try to evaluate the ApkOutputPath property
+							var props = vcProject.ActiveConfiguration?.Evaluate("$(ApkOutputPath)");
+							if (!string.IsNullOrEmpty(props))
+							{
+								var buildType = configName.Contains("Release") ? "release" : "debug";
+								var apkName = configName.Contains("Release") ? "app-release.apk" : "app-debug.apk";
+								apkPath = System.IO.Path.Combine(props, buildType, apkName);
+								outputService_?.WriteLine($"ApkOutputPath from project: {apkPath}");
+							}
+						}
+					}
+				}
+				catch (Exception ex)
+				{
+					outputService_?.WriteLine($"Could not get ApkOutputPath from project: {ex.Message}");
+				}
+			}
+
+			// Fallback: Search for APK in common locations
+			if (apkPath == null || !System.IO.File.Exists(apkPath))
+			{
+				apkPath = FindApk(projectDir, gradleDir);
+			}
+
 			if (apkPath == null)
 			{
 				outputService_?.WriteLine("Error: APK not found. Please build the project first (Ctrl+Shift+B).");
@@ -642,7 +763,7 @@ public sealed class OceanAndroidExtensionPackage : AsyncPackage
 	private string? FindApk(string projectDir, string gradleDir)
 	{
 		// Search paths relative to both project root and gradle directory
-		var searchPaths = new[]
+		var searchPaths = new System.Collections.Generic.List<string>
 		{
 			// Standard Gradle output locations (relative to gradle dir)
 			System.IO.Path.Combine(gradleDir, "app", "build", "outputs", "apk", "debug"),
@@ -666,18 +787,60 @@ public sealed class OceanAndroidExtensionPackage : AsyncPackage
 		// Ocean build output paths: obj/{Platform}/{Config}/gradle-build/outputs/apk/{debug|release}
 		var platforms = new[] { "x64", "ARM64", "ARM", "x86" };
 		var configurations = new[] { "Debug", "Release" };
-		var oceanPaths = platforms.SelectMany(platform =>
-			configurations.SelectMany(config => new[]
+		foreach (var platform in platforms)
+		{
+			foreach (var config in configurations)
 			{
-				System.IO.Path.Combine(projectDir, "obj", platform, config, "gradle-build", "outputs", "apk", "debug"),
-				System.IO.Path.Combine(projectDir, "obj", platform, config, "gradle-build", "outputs", "apk", "release"),
-			}));
+				searchPaths.Add(System.IO.Path.Combine(projectDir, "obj", platform, config, "gradle-build", "outputs", "apk", "debug"));
+				searchPaths.Add(System.IO.Path.Combine(projectDir, "obj", platform, config, "gradle-build", "outputs", "apk", "release"));
+			}
+		}
 
-		var allSearchPaths = searchPaths.Concat(oceanPaths).ToArray();
+		// Ocean external build directory: Look for ocean/bin/tmp/.../gradle-build paths
+		// The Ocean build system outputs to $(OceanRootPath)/bin/tmp/impl/.../gradle-build
+		// Try to find the Ocean root by looking for "ocean" folder in ancestors
+		try
+		{
+			var dir = new System.IO.DirectoryInfo(projectDir);
+			string? oceanRoot = null;
 
-		outputService_?.WriteLine($"Searching for APK in {allSearchPaths.Length} locations...");
+			// Walk up to find the ocean root (contains "bin" folder with "tmp" subfolder)
+			while (dir != null)
+			{
+				var binTmpPath = System.IO.Path.Combine(dir.FullName, "bin", "tmp");
+				if (System.IO.Directory.Exists(binTmpPath))
+				{
+					oceanRoot = dir.FullName;
+					outputService_?.WriteLine($"  Found Ocean root: {oceanRoot}");
+					break;
+				}
+				dir = dir.Parent;
+			}
 
-		foreach (var path in allSearchPaths)
+			if (oceanRoot != null)
+			{
+				// Search for gradle-build folders under ocean/bin/tmp
+				var binTmpPath = System.IO.Path.Combine(oceanRoot, "bin", "tmp");
+				if (System.IO.Directory.Exists(binTmpPath))
+				{
+					// Look for gradle-build/outputs/apk folders recursively (limit depth for performance)
+					var gradleBuildDirs = System.IO.Directory.GetDirectories(binTmpPath, "gradle-build", System.IO.SearchOption.AllDirectories);
+					foreach (var gradleBuildDir in gradleBuildDirs)
+					{
+						searchPaths.Add(System.IO.Path.Combine(gradleBuildDir, "outputs", "apk", "debug"));
+						searchPaths.Add(System.IO.Path.Combine(gradleBuildDir, "outputs", "apk", "release"));
+					}
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			outputService_?.WriteLine($"  Warning: Error searching Ocean build directory: {ex.Message}");
+		}
+
+		outputService_?.WriteLine($"Searching for APK in {searchPaths.Count} locations...");
+
+		foreach (var path in searchPaths)
 		{
 			if (System.IO.Directory.Exists(path))
 			{
@@ -771,6 +934,132 @@ public sealed class OceanAndroidExtensionPackage : AsyncPackage
 		if (string.IsNullOrEmpty(androidSdk))
 		{
 			outputService_?.WriteLine("Warning: Android SDK not found. Please configure in Tools > Options > Android > SDK Paths");
+		}
+	}
+
+	/**
+	 * Finds a project by its unique name in the solution.
+	 * @param solution The solution
+	 * @param uniqueName The unique name of the project
+	 * @return The project if found, null otherwise
+	 */
+	private EnvDTE.Project? FindProjectByUniqueName(EnvDTE.Solution solution, string uniqueName)
+	{
+		Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
+
+		foreach (var project in GetAllProjects(solution))
+		{
+			try
+			{
+				if (project.UniqueName == uniqueName)
+				{
+					return project;
+				}
+			}
+			catch
+			{
+				// Skip projects that throw exceptions
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Gets all projects in the solution, including those nested in solution folders.
+	 * @param solution The solution
+	 * @return An enumerable of all projects
+	 */
+	private System.Collections.Generic.IEnumerable<EnvDTE.Project> GetAllProjects(EnvDTE.Solution solution)
+	{
+		Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
+
+		foreach (EnvDTE.Project project in solution.Projects)
+		{
+			foreach (var p in GetProjectsRecursive(project))
+			{
+				yield return p;
+			}
+		}
+	}
+
+	/**
+	 * Recursively gets projects from a project (handles solution folders).
+	 * @param project The project or solution folder
+	 * @return An enumerable of projects
+	 */
+	private System.Collections.Generic.IEnumerable<EnvDTE.Project> GetProjectsRecursive(EnvDTE.Project project)
+	{
+		Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
+
+		// Check if this is a solution folder
+		const string solutionFolderKind = "{66A26720-8FB5-11D2-AA7E-00C04F688DDE}";
+
+		if (project.Kind == solutionFolderKind)
+		{
+			// It's a solution folder - enumerate its project items
+			if (project.ProjectItems != null)
+			{
+				foreach (EnvDTE.ProjectItem item in project.ProjectItems)
+				{
+					var subProject = item.SubProject;
+					if (subProject != null)
+					{
+						foreach (var p in GetProjectsRecursive(subProject))
+						{
+							yield return p;
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			// It's a regular project
+			yield return project;
+		}
+	}
+
+	/**
+	 * Tries to get project properties from a vcxproj file.
+	 * @param projectPath The path to the vcxproj file
+	 * @param packageName Output: the AndroidPackageName property
+	 * @param activityName Output: the AndroidMainActivityName property
+	 * @return True if properties were found
+	 */
+	private bool TryGetProjectProperties(string projectPath, out string? packageName, out string? activityName)
+	{
+		packageName = null;
+		activityName = null;
+
+		if (!projectPath.EndsWith(".vcxproj", StringComparison.OrdinalIgnoreCase))
+			return false;
+
+		try
+		{
+			var content = System.IO.File.ReadAllText(projectPath);
+
+			// Extract AndroidPackageName
+			var packageMatch = System.Text.RegularExpressions.Regex.Match(content, @"<AndroidPackageName>([^<]+)</AndroidPackageName>");
+			if (packageMatch.Success)
+			{
+				packageName = packageMatch.Groups[1].Value;
+				outputService_?.WriteLine($"  Found AndroidPackageName: {packageName}");
+			}
+
+			// Extract AndroidMainActivityName
+			var activityMatch = System.Text.RegularExpressions.Regex.Match(content, @"<AndroidMainActivityName>([^<]+)</AndroidMainActivityName>");
+			if (activityMatch.Success)
+			{
+				activityName = activityMatch.Groups[1].Value;
+				outputService_?.WriteLine($"  Found AndroidMainActivityName: {activityName}");
+			}
+
+			return packageName != null;
+		}
+		catch (Exception ex)
+		{
+			outputService_?.WriteLine($"  Warning: Could not read project properties: {ex.Message}");
+			return false;
 		}
 	}
 
