@@ -8,7 +8,9 @@
 """Ocean Third-Party Build System - Builders."""
 
 from builders.cmake import CMakeBuilder
+from builders.imported_shared import ImportedSharedBuilder
 
 __all__ = [
     "CMakeBuilder",
+    "ImportedSharedBuilder",
 ]

@@ -426,6 +426,23 @@ libraries:
       - win
 
   # Android-specific libraries
+  arcore-android-sdk:
+    version: "1.30.0"
+    description: "ARCore SDK for Android AR applications"
+    source:
+      type: archive
+      archive_url: https://dl.google.com/android/maven2/com/google/ar/core/1.30.0/core-1.30.0.aar
+      copy_files:
+        ../cmake/third-party/arcore-android-sdk/include: include
+    build:
+      system: imported_shared
+      options:
+          lib_subdir: "jni/{android_abi}"
+          lib_files:
+            - libarcore_sdk_c.so
+    platforms:
+      - android
+
   android_native_app_glue:
     version: "ndk"
     description: "Android native activity glue layer from the NDK"
@@ -447,5 +464,3 @@ libraries:
     # enforce this regardless of BUILD_SHARED_LIBS.
     link_types:
       - static
-
-  # TODO: arcore-android-sdk - downloads AAR from Google Maven

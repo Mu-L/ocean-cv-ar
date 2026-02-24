@@ -232,7 +232,7 @@ class SourceFetcher:
 
             # Extract based on extension
             url_lower = source.archive_url.lower()
-            if url_lower.endswith(".zip"):
+            if url_lower.endswith((".zip", ".aar")):
                 with zipfile.ZipFile(archive_path, "r") as zf:
                     zf.extractall(target_dir)
             elif url_lower.endswith((".tar.gz", ".tgz")):

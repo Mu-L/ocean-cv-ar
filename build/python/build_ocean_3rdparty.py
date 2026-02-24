@@ -137,6 +137,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from builders.cmake import CMakeBuilder
 from builders.header_only import HeaderOnlyBuilder
+from builders.imported_shared import ImportedSharedBuilder
 from lib import (
     Arch,
     BuildConfig,
@@ -421,6 +422,8 @@ def get_builder(system: str) -> Builder:
         return CMakeBuilder()
     elif system == "header_only":
         return HeaderOnlyBuilder()
+    elif system == "imported_shared":
+        return ImportedSharedBuilder()
     else:
         raise ValueError(f"Unknown build system: {system}")
 
