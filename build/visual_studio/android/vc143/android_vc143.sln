@@ -223,6 +223,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "consolenative", "applicatio
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "consoleapp", "application\ocean\demo\base\console\consoleapp\consoleapp.vcxproj", "{D5F0F3D4-21D2-4D69-BF50-C85594CDB76D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platformlinux", "ocean\platform\linux\platformlinux.vcxproj", "{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -3233,6 +3235,42 @@ Global
 		{D5F0F3D4-21D2-4D69-BF50-C85594CDB76D}.Static Release|ARM64.Deploy.0 = Release|ARM64
 		{D5F0F3D4-21D2-4D69-BF50-C85594CDB76D}.Static Release|x64.ActiveCfg = Release|x64
 		{D5F0F3D4-21D2-4D69-BF50-C85594CDB76D}.Static Release|x64.Build.0 = Release|x64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Debug|ARM.ActiveCfg = Static Release|ARM
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Debug|ARM.Build.0 = Static Release|ARM
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Debug|ARM64.ActiveCfg = Static Release|ARM64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Debug|ARM64.Build.0 = Static Release|ARM64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Debug|x64.ActiveCfg = Static Release|x64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Debug|x64.Build.0 = Static Release|x64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Release|ARM.ActiveCfg = Static Release|ARM
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Release|ARM.Build.0 = Static Release|ARM
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Release|ARM64.ActiveCfg = Static Release|ARM64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Release|ARM64.Build.0 = Static Release|ARM64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Release|x64.ActiveCfg = Static Release|x64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Release|x64.Build.0 = Static Release|x64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Shared Debug|ARM.ActiveCfg = Shared Debug|ARM
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Shared Debug|ARM.Build.0 = Shared Debug|ARM
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Shared Debug|ARM64.ActiveCfg = Shared Debug|ARM64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Shared Debug|ARM64.Build.0 = Shared Debug|ARM64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Shared Debug|x64.ActiveCfg = Shared Debug|x64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Shared Debug|x64.Build.0 = Shared Debug|x64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Shared Release|ARM.ActiveCfg = Shared Release|ARM
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Shared Release|ARM.Build.0 = Shared Release|ARM
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Shared Release|ARM64.ActiveCfg = Shared Release|ARM64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Shared Release|ARM64.Build.0 = Shared Release|ARM64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Shared Release|x64.ActiveCfg = Shared Release|x64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Shared Release|x64.Build.0 = Shared Release|x64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Static Debug|ARM.ActiveCfg = Static Debug|ARM
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Static Debug|ARM.Build.0 = Static Debug|ARM
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Static Debug|ARM64.ActiveCfg = Static Debug|ARM64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Static Debug|ARM64.Build.0 = Static Debug|ARM64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Static Debug|x64.ActiveCfg = Static Debug|x64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Static Debug|x64.Build.0 = Static Debug|x64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Static Release|ARM.ActiveCfg = Static Release|ARM
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Static Release|ARM.Build.0 = Static Release|ARM
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Static Release|ARM64.ActiveCfg = Static Release|ARM64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Static Release|ARM64.Build.0 = Static Release|ARM64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Static Release|x64.ActiveCfg = Static Release|x64
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE}.Static Release|x64.Build.0 = Static Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -3346,6 +3384,7 @@ Global
 		{4DA667AF-1E2A-4FD2-BC0F-79E27DDDB49F} = {68D46145-0F89-4A35-B90F-28D7A28FF6D0}
 		{113DAC75-5F4E-47BB-B9FA-972539738826} = {4DA667AF-1E2A-4FD2-BC0F-79E27DDDB49F}
 		{D5F0F3D4-21D2-4D69-BF50-C85594CDB76D} = {4DA667AF-1E2A-4FD2-BC0F-79E27DDDB49F}
+		{5AFADBF7-9042-4CEA-A690-2B05C506D5CE} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2BCADCA3-A709-48C0-B594-0DEBD4182B19}
