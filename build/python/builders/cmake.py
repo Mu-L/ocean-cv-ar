@@ -217,8 +217,15 @@ class CMakeBuilder(Builder):
             api_level = ctx.android_api_level
         cmd.append(f"-DANDROID_PLATFORM=android-{api_level}")
 
-        # Use libc++ (modern C++ library)
-        cmd.append("-DANDROID_STL=c++_static")
+        # Use libc++. For shared builds, use the shared variant so that all
+        # loaded .so files share a single C++ runtime instance. Using c++_static
+        # in a shared build would give each .so its own private libc++ copy,
+        # which causes ODR violations and incompatible std::string/std::mutex
+        # state across library boundaries.
+        if ctx and ctx.target.link_type == LinkType.SHARED:
+            cmd.append("-DANDROID_STL=c++_shared")
+        else:
+            cmd.append("-DANDROID_STL=c++_static")
 
         # On Windows, build tools may not be on PATH but bundled with the
         # Android SDK/NDK. Tell CMake where to find them explicitly.

@@ -1684,8 +1684,11 @@ def main() -> int:  # noqa: C901
         for link_type in link_types
     ]
 
-    # Filter out shared builds for platforms that don't support them
-    unsupported_shared = {OS.ANDROID, OS.IOS}
+    # Filter out shared builds for platforms that don't support them.
+    # iOS is excluded because of code-signing and Swift module issues.
+    # Android shared builds are supported (see per-library link_types in
+    # dependencies.yaml for libraries that must remain static).
+    unsupported_shared = {OS.IOS}
     shared_skipped = any(
         t.link_type == LinkType.SHARED and t.os in unsupported_shared for t in targets
     )
@@ -1696,8 +1699,8 @@ def main() -> int:  # noqa: C901
     ]
     if shared_skipped:
         print(
-            "Note: Shared library builds are not supported for Android/iOS. "
-            "Skipping shared targets for those platforms."
+            "Note: Shared library builds are not supported for iOS. "
+            "Skipping shared targets for iOS."
         )
 
     if not targets:
