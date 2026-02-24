@@ -46,12 +46,18 @@
     <!-- Use Makefile project type - build is handled by Gradle -->
     <ConfigurationType>Makefile</ConfigurationType>
 
-    <!-- Android-specific properties -->
+  <!-- Android-specific properties -->
     <AndroidPackageName>com.example.$safeprojectname$</AndroidPackageName>
     <OutputType>AndroidApplication</OutputType>
     <AndroidMinSdkVersion>24</AndroidMinSdkVersion>
     <AndroidTargetSdkVersion>34</AndroidTargetSdkVersion>
     <JavaVersion>VERSION_17</JavaVersion>
+
+    <!-- Main activity class name (for F5/Start deployment) -->
+    <!-- <AndroidMainActivityName>MainActivity</AndroidMainActivityName> -->
+
+    <!-- External resources directory (if resources are outside the project folder) -->
+    <!-- <AndroidResDir>$(SolutionDir)..\res\myapp</AndroidResDir> -->
   </PropertyGroup>
 
   <!-- Import VCTargets Default Props -->

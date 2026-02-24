@@ -463,7 +463,7 @@ public sealed class OceanAndroidExtensionPackage : AsyncPackage
 				return;
 			}
 
-		var dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+			var dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
 			if (dte == null)
 			{
 				outputService_?.WriteLine("Error: Could not access DTE service.");
@@ -493,7 +493,7 @@ public sealed class OceanAndroidExtensionPackage : AsyncPackage
 					if (!string.IsNullOrEmpty(startupProjectPath))
 					{
 						outputService_?.WriteLine($"Startup project path: {startupProjectPath}");
-						startupProject = FindProjectByUniqueName(dte.Solution, startupProjectPath);
+						startupProject = FindProjectByUniqueName(dte.Solution, startupProjectPath!);
 					}
 				}
 			}

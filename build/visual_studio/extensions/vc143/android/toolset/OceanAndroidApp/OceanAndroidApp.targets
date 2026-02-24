@@ -99,7 +99,7 @@
        this file is imported.
        ============================================================ -->
   <PropertyGroup>
-    <ProjectGradleProperties Condition="'$(ProjectGradleProperties)' == ''">-PjniLibsDir="$(JniLibsStagingDir)" -PandroidManifest="$(AndroidManifestFile)" -PandroidPackageName="$(AndroidPackageName)" -PandroidMinSdk=$(AndroidMinSdkVersion) -PandroidTargetSdk=$(AndroidTargetSdkVersion) -PgradleDependencies="$(GradleDependencies)" -PgradleLocalAARDir="$(GradleLocalAARDir)" -PgradleLocalAARDependencies="$(GradleLocalAARDependencies)"</ProjectGradleProperties>
+    <ProjectGradleProperties Condition="'$(ProjectGradleProperties)' == ''">-PjniLibsDir="$(JniLibsStagingDir)" -PandroidManifest="$(AndroidManifestFile)" -PandroidPackageName="$(AndroidPackageName)" -PandroidMinSdk=$(AndroidMinSdkVersion) -PandroidTargetSdk=$(AndroidTargetSdkVersion) -PandroidResDir="$(AndroidResDir)" -PgradleDependencies="$(GradleDependencies)" -PgradleLocalAARDir="$(GradleLocalAARDir)" -PgradleLocalAARDependencies="$(GradleLocalAARDependencies)"</ProjectGradleProperties>
   </PropertyGroup>
 
   <!-- ============================================================
@@ -399,7 +399,7 @@
          AndroidManifestFile value. We must redefine it here so the Build/Rebuild/Clean
          targets pick up the resolved value. -->
     <PropertyGroup>
-      <ProjectGradleProperties>-PjniLibsDir="$(JniLibsStagingDir)" -PandroidManifest="$(AndroidManifestFile)" -PandroidPackageName="$(AndroidPackageName)" -PandroidMinSdk=$(AndroidMinSdkVersion) -PandroidTargetSdk=$(AndroidTargetSdkVersion) -PgradleDependencies="$(GradleDependencies)" -PgradleLocalAARDir="$(GradleLocalAARDir)" -PgradleLocalAARDependencies="$(GradleLocalAARDependencies)"</ProjectGradleProperties>
+      <ProjectGradleProperties>-PjniLibsDir="$(JniLibsStagingDir)" -PandroidManifest="$(AndroidManifestFile)" -PandroidPackageName="$(AndroidPackageName)" -PandroidMinSdk=$(AndroidMinSdkVersion) -PandroidTargetSdk=$(AndroidTargetSdkVersion) -PandroidResDir="$(AndroidResDir)" -PgradleDependencies="$(GradleDependencies)" -PgradleLocalAARDir="$(GradleLocalAARDir)" -PgradleLocalAARDependencies="$(GradleLocalAARDependencies)"</ProjectGradleProperties>
       <GradleProperties>$(GradleBaseProperties) $(ProjectGradleProperties)</GradleProperties>
     </PropertyGroup>
 

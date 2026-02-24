@@ -103,10 +103,14 @@ android {
               "androidManifest property not set. Build must be invoked from Visual Studio/MSBuild, not standalone Gradle."
           )
 
+  // Android resources directory - passed via -PandroidResDir property from MSBuild
+  // Defaults to "res" relative to app folder if not specified
+  val androidResDir = project.findProperty("androidResDir") as String? ?: "res"
+
   sourceSets {
     getByName("main") {
       java.setSrcDirs(listOf(file(javaStagingDir)))
-      res.setSrcDirs(listOf(file("res")))
+      res.setSrcDirs(listOf(file(androidResDir)))
       assets.setSrcDirs(listOf(file("assets")))
       manifest.srcFile(file(androidManifest))
       jniLibs.setSrcDirs(listOf(file(jniLibsDir)))
