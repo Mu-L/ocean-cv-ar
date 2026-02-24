@@ -1306,6 +1306,73 @@ def _cleanup_lock_files(install_dir: Path) -> None:
 # ============================================================================
 
 
+def _print_link_type_skip_warning(
+    lib_name: str,
+    skipped_targets: List[BuildTarget],
+) -> None:
+    """Print a prominent warning when a library will be skipped for some targets
+    due to a link_types restriction in the manifest."""
+    WIDTH = 70
+    SEP = "═" * WIDTH
+
+    explanations: Dict[str, List[str]] = {
+        "mbedtls": [
+            "mbedtls cannot be built as a shared library for Windows targets.",
+            "It lacks __declspec(dllexport) declarations, so its output DLLs",
+            "(mbedcrypto, mbedx509, mbedtls) would have no exported symbols and",
+            "their inter-dependencies would fail to link. This is a Windows",
+            "target ABI restriction and does not apply to Android or other",
+            "non-Windows targets.",
+            "",
+            "To also get mbedtls for Windows, add '--link static' to your command.",
+        ],
+        "android_native_app_glue": [
+            "android_native_app_glue must always be a static library.",
+            "It provides the android_main() entry point and the NativeActivity",
+            "event loop, which the OS resolves at load time inside the app's",
+            "main .so. It is designed to be compiled directly into that .so —",
+            "not distributed as a separate shared library. The NDK ships it as",
+            "source only for this reason.",
+        ],
+    }
+
+    lines = explanations.get(
+        lib_name,
+        [f"'{lib_name}' does not support the requested link type for these targets."],
+    )
+    target_strs = ", ".join(t.to_path_component() for t in skipped_targets)
+
+    print(f"\n{SEP}")
+    print(f"  WARNING: {lib_name} — skipped for {len(skipped_targets)} target(s)")
+    print(SEP)
+    for line in lines:
+        print(f"  {line}" if line else "")
+    print(f"\n  Skipped: {target_strs}")
+    print(SEP)
+
+
+def warn_link_type_skips(
+    libraries: Dict[str, LibraryConfig],
+    targets: List[BuildTarget],
+) -> None:
+    """Emit prominent warnings for any library/target combinations that will be
+    silently skipped because the library's link_types restriction does not cover
+    the requested link type, but the library *does* support the target platform.
+    """
+    for lib_name in sorted(libraries.keys()):
+        lib = libraries[lib_name]
+        if "all" in lib.link_types:
+            continue
+        skipped = [
+            t
+            for t in targets
+            if lib.supports_platform(t.os.value)
+            and not lib.supports_link_type(t.link_type.value)
+        ]
+        if skipped:
+            _print_link_type_skip_warning(lib_name, skipped)
+
+
 def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
@@ -1792,6 +1859,10 @@ def main() -> int:  # noqa: C901
         return 0
 
     # Build!
+    # Warn about any library/target combinations that will be silently skipped
+    # due to link_types restrictions in the manifest.
+    warn_link_type_skips(libraries, targets)
+
     try:
         build_all(
             manifest=manifest,

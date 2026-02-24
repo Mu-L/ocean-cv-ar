@@ -91,10 +91,14 @@ libraries:
         USE_STATIC_MBEDTLS_LIBRARY: ON
         USE_SHARED_MBEDTLS_LIBRARY: OFF
     platforms: all
-    # mbedtls does not support shared library builds on Windows because it doesn't
-    # use __declspec(dllexport) for symbol visibility. The three DLLs (mbedcrypto,
-    # mbedx509, mbedtls) have inter-dependencies that fail to link without proper
-    # symbol exports. Static linking is the recommended approach for mbedtls.
+    # mbedtls cannot be built as a shared library for Windows *targets*: it lacks
+    # __declspec(dllexport) declarations, so its three output DLLs (mbedcrypto,
+    # mbedx509, mbedtls) would have no exported symbols and their
+    # inter-dependencies would fail to link. This is a Windows target ABI
+    # restriction — it has nothing to do with the build host OS. Cross-compiling
+    # mbedtls to Android or other non-Windows targets as a shared library would
+    # work fine at the build-system level, but we keep it static everywhere for
+    # simplicity and to avoid ODR issues when mixing static and shared runtimes.
     link_types:
       - static
 
@@ -433,6 +437,13 @@ libraries:
       system: cmake
     platforms:
       - android
+    # android_native_app_glue must be a static library. It provides the
+    # android_main() entry point and the NativeActivity event loop that the OS
+    # resolves at load time inside the app's main .so. If built as a shared
+    # library it would need to be separately dlopen'd, breaking the NativeActivity
+    # lifecycle. The NDK intentionally ships it as source only (never pre-built)
+    # for this reason. The injected CMakeLists.txt also hard-codes STATIC to
+    # enforce this regardless of BUILD_SHARED_LIBS.
     link_types:
       - static
 
