@@ -124,18 +124,20 @@
        the debugger, waits for it, and returns its exit code.
        ============================================================ -->
   <PropertyGroup>
+    <!-- Default main activity name (can be overridden by projects) -->
+    <AndroidMainActivityName Condition="'$(AndroidMainActivityName)' == ''">MainActivity</AndroidMainActivityName>
     <_OceanDeployScript>$(MSBuildThisFileDirectory)..\Deploy\deploy.bat</_OceanDeployScript>
     <_OceanDeployLauncher>$(MSBuildThisFileDirectory)..\Deploy\OceanDeployLauncher.exe</_OceanDeployLauncher>
     <LocalDebuggerCommand Condition="'$(LocalDebuggerCommand)' == ''">$(_OceanDeployLauncher)</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments Condition="'$(LocalDebuggerCommandArguments)' == '' AND $(Configuration.Contains('Release'))">"$(_OceanDeployScript)" "$(MSBuildProjectDirectory)" "$(AndroidPackageName)" "$(ApkOutputPath)\release\app-release.apk"</LocalDebuggerCommandArguments>
-    <LocalDebuggerCommandArguments Condition="'$(LocalDebuggerCommandArguments)' == '' AND !$(Configuration.Contains('Release'))">"$(_OceanDeployScript)" "$(MSBuildProjectDirectory)" "$(AndroidPackageName)" "$(ApkOutputPath)\debug\app-debug.apk"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments Condition="'$(LocalDebuggerCommandArguments)' == '' AND $(Configuration.Contains('Release'))">"$(_OceanDeployScript)" "$(MSBuildProjectDirectory)" "$(AndroidPackageName)" "$(ApkOutputPath)\release\app-release.apk" "$(AndroidMainActivityName)"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments Condition="'$(LocalDebuggerCommandArguments)' == '' AND !$(Configuration.Contains('Release'))">"$(_OceanDeployScript)" "$(MSBuildProjectDirectory)" "$(AndroidPackageName)" "$(ApkOutputPath)\debug\app-debug.apk" "$(AndroidMainActivityName)"</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory Condition="'$(LocalDebuggerWorkingDirectory)' == ''">$(MSBuildProjectDirectory)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor Condition="'$(DebuggerFlavor)' == ''">WindowsLocalDebugger</DebuggerFlavor>
     <!-- VS enables Deploy for ARM/ARM64 platforms, which requires RemoteDebuggerCommand.
          Point it to the same deploy launcher so the Deploy step installs the APK via ADB. -->
     <RemoteDebuggerCommand Condition="'$(RemoteDebuggerCommand)' == ''">$(_OceanDeployLauncher)</RemoteDebuggerCommand>
-    <RemoteDebuggerCommandArguments Condition="'$(RemoteDebuggerCommandArguments)' == '' AND $(Configuration.Contains('Release'))">"$(_OceanDeployScript)" "$(MSBuildProjectDirectory)" "$(AndroidPackageName)" "$(ApkOutputPath)\release\app-release.apk"</RemoteDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments Condition="'$(RemoteDebuggerCommandArguments)' == '' AND !$(Configuration.Contains('Release'))">"$(_OceanDeployScript)" "$(MSBuildProjectDirectory)" "$(AndroidPackageName)" "$(ApkOutputPath)\debug\app-debug.apk"</RemoteDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments Condition="'$(RemoteDebuggerCommandArguments)' == '' AND $(Configuration.Contains('Release'))">"$(_OceanDeployScript)" "$(MSBuildProjectDirectory)" "$(AndroidPackageName)" "$(ApkOutputPath)\release\app-release.apk" "$(AndroidMainActivityName)"</RemoteDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments Condition="'$(RemoteDebuggerCommandArguments)' == '' AND !$(Configuration.Contains('Release'))">"$(_OceanDeployScript)" "$(MSBuildProjectDirectory)" "$(AndroidPackageName)" "$(ApkOutputPath)\debug\app-debug.apk" "$(AndroidMainActivityName)"</RemoteDebuggerCommandArguments>
   </PropertyGroup>
 
   <!-- ============================================================

@@ -1,4 +1,4 @@
-REM Copyright (c) Meta Platforms, Inc. and affiliates.
+﻿REM Copyright (c) Meta Platforms, Inc. and affiliates.
 REM
 REM This source code is licensed under the MIT license found in the
 REM LICENSE file in the root directory of this source tree.
@@ -33,6 +33,12 @@ echo [%date% %time%] Package Name: %PACKAGE_NAME% >> "%LOG_FILE%"
 if "%PACKAGE_NAME%"=="" (
     echo Warning: Package name not provided. App will be installed but not launched.
 )
+
+REM Get the activity name (passed as fourth argument, defaults to MainActivity)
+set "ACTIVITY_NAME=%~4"
+if "%ACTIVITY_NAME%"=="" set "ACTIVITY_NAME=MainActivity"
+echo Activity Name: %ACTIVITY_NAME%
+echo [%date% %time%] Activity Name: %ACTIVITY_NAME% >> "%LOG_FILE%"
 
 REM Find ADB - prefer ANDROID_HOME, fall back to default location
 if defined ANDROID_HOME (
@@ -101,8 +107,8 @@ if "%PACKAGE_NAME%"=="" (
     echo Skipping launch: package name not provided.
     echo [%date% %time%] Skipping launch: no package name >> "%LOG_FILE%"
 ) else (
-    echo [%date% %time%] Launching %PACKAGE_NAME%/.MainActivity >> "%LOG_FILE%"
-    "%ADB_PATH%" shell am start -n %PACKAGE_NAME%/.MainActivity
+    echo [%date% %time%] Launching %PACKAGE_NAME%/.%ACTIVITY_NAME% >> "%LOG_FILE%"
+    "%ADB_PATH%" shell am start -n %PACKAGE_NAME%/.%ACTIVITY_NAME%
     if errorlevel 1 (
         echo Warning: Failed to launch app automatically.
         echo [%date% %time%] WARNING: Failed to launch app >> "%LOG_FILE%"

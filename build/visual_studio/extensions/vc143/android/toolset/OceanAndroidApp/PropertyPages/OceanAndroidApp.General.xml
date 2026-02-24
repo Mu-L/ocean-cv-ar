@@ -34,6 +34,17 @@
     </StringProperty.DataSource>
   </StringProperty>
 
+  <StringProperty Name="AndroidMainActivityName"
+                  DisplayName="Main Activity Name"
+                  Description="The main Activity class name to launch when starting the app (e.g., MainActivity). This is used by the deployment script to launch the app via ADB."
+                  Category="General"
+                  Default="MainActivity"
+                  F1Keyword="VC.Project.AndroidMainActivityName">
+    <StringProperty.DataSource>
+      <DataSource Persistence="ProjectFile" Label="" />
+    </StringProperty.DataSource>
+  </StringProperty>
+
   <!-- Android Category -->
   <IntProperty Name="AndroidMinSdkVersion"
                DisplayName="Minimum SDK Version"

@@ -25,14 +25,14 @@ internal static class Program
 {
 	/**
 	 * Main entry point for the deploy launcher.
-	 * @param args Command line arguments: deploy.bat, projectDir, packageName, apkPath
+	 * @param args Command line arguments: deploy.bat, projectDir, packageName, apkPath, [activityName]
 	 * @return Exit code from the deploy script, or 1 on error
 	 */
 	static int Main(string[] args)
 	{
 		if (args.Length < 4)
 		{
-			Console.Error.WriteLine("Usage: OceanDeployLauncher.exe <deploy.bat> <projectDir> <packageName> <apkPath>");
+			Console.Error.WriteLine("Usage: OceanDeployLauncher.exe <deploy.bat> <projectDir> <packageName> <apkPath> [activityName]");
 			return 1;
 		}
 
@@ -40,13 +40,14 @@ internal static class Program
 		var projectDir = args[1];
 		var packageName = args[2];
 		var apkPath = args[3];
+		var activityName = args.Length > 4 ? args[4] : "MainActivity";
 
 		try
 		{
 			var psi = new ProcessStartInfo
 			{
 				FileName = deployScript,
-				Arguments = string.Format("\"{0}\" \"{1}\" \"{2}\"", projectDir, packageName, apkPath),
+				Arguments = string.Format("\"{0}\" \"{1}\" \"{2}\" \"{3}\"", projectDir, packageName, apkPath, activityName),
 				UseShellExecute = true,
 				WorkingDirectory = projectDir
 			};
