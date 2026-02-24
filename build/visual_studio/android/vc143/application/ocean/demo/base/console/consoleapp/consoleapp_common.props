@@ -13,6 +13,11 @@
     <OceanBuildType>static</OceanBuildType>
   </PropertyGroup>
 
+  <!-- Main activity name for deployment (used by deploy.bat) -->
+  <PropertyGroup>
+    <AndroidMainActivityName>DemoConsoleActivity</AndroidMainActivityName>
+  </PropertyGroup>
+
   <ImportGroup Label="Dependencies">
     <Import Condition="'$(ocean_applicationdemobase_build_imported)' != 'True'" Project="..\..\application_demo_base_build.props"/>
     <Import Condition="'$(ocean_java_app_build_imported)' != 'True'" Project="..\..\..\..\ocean_java_app_build.props"/>
