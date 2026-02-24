@@ -11,6 +11,7 @@
   <ImportGroup Label="Dependencies">
     <Import Condition="'$(ocean_applicationdemobase_build_imported)' != 'True'" Project="..\..\application_demo_base_build.props"/>
     <Import Condition="'$(ocean_base_use_imported)' != 'True'" Project="..\..\..\..\..\..\ocean\base\base_use.props"/>
+    <Import Condition="'$(ocean_basejni_use_imported)' != 'True'" Project="..\..\..\..\..\..\ocean\base\jni\basejni_use.props"/>
     <Import Condition="'$(ocean_platformandroid_use_imported)' != 'True'" Project="..\..\..\..\..\..\ocean\platform\android\platformandroid_use.props"/>
   </ImportGroup>
 </Project>
