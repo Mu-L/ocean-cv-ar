@@ -348,6 +348,7 @@ class CMakeBuilder(Builder):
             cwd=cwd,
             capture_output=True,
             text=True,
+            creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
         )
 
         # Write to log file if specified

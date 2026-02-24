@@ -30,24 +30,62 @@ from typing import Dict, List, Optional
 # support it), we record this so that Rich can be told not to emit ANSI codes.
 _WIN_VT_ENABLED = True  # Assume True for non-Windows or when not needed
 
+# Module-level ctypes references saved for _reenable_win_vt() calls during rendering.
+# Child processes (git, cmake, ninja) share the parent's Windows console and can call
+# SetConsoleMode() to reset ENABLE_VIRTUAL_TERMINAL_PROCESSING, which causes ANSI
+# escape sequences to appear as literal characters. We re-enable VT mode before each
+# render to recover from such resets.
+_win_kernel32 = None
+_win_ctypes = None
+_win_wintypes = None
+_ENABLE_VT_PROCESSING = 0x0004
+
 if os.name == "nt":
     _WIN_VT_ENABLED = False  # Assume failure; set True only on success
     try:
-        import ctypes
-        from ctypes import wintypes
+        import ctypes as _ctypes_import
+        from ctypes import wintypes as _wintypes_import
 
-        kernel32 = ctypes.windll.kernel32
-        ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
+        _k32 = _ctypes_import.windll.kernel32
 
         for std_handle_id in (-11, -12):  # STD_OUTPUT_HANDLE, STD_ERROR_HANDLE
-            handle = kernel32.GetStdHandle(std_handle_id)
-            mode = wintypes.DWORD()
-            if kernel32.GetConsoleMode(handle, ctypes.byref(mode)):
-                new_mode = mode.value | ENABLE_VIRTUAL_TERMINAL_PROCESSING
-                if kernel32.SetConsoleMode(handle, new_mode):
+            handle = _k32.GetStdHandle(std_handle_id)
+            mode = _wintypes_import.DWORD()
+            if _k32.GetConsoleMode(handle, _ctypes_import.byref(mode)):
+                new_mode = mode.value | _ENABLE_VT_PROCESSING
+                if _k32.SetConsoleMode(handle, new_mode):
                     _WIN_VT_ENABLED = True
+
+        if _WIN_VT_ENABLED:
+            # Save references for use in _reenable_win_vt()
+            _win_kernel32 = _k32
+            _win_ctypes = _ctypes_import
+            _win_wintypes = _wintypes_import
     except Exception:
         pass
+
+
+def _reenable_win_vt() -> None:
+    """Re-enable Windows VT processing if it was reset by a subprocess.
+
+    Child processes attached to the same Windows console can reset
+    ENABLE_VIRTUAL_TERMINAL_PROCESSING via SetConsoleMode(). This function
+    restores it before each Rich render so escape codes are interpreted correctly.
+    """
+    if _win_kernel32 is None:
+        return
+    try:
+        for std_handle_id in (-11, -12):
+            handle = _win_kernel32.GetStdHandle(std_handle_id)
+            mode = _win_wintypes.DWORD()
+            if _win_kernel32.GetConsoleMode(handle, _win_ctypes.byref(mode)):
+                if not (mode.value & _ENABLE_VT_PROCESSING):
+                    _win_kernel32.SetConsoleMode(
+                        handle, mode.value | _ENABLE_VT_PROCESSING
+                    )
+    except Exception:
+        pass
+
 
 # Try to import rich, fall back to simple output if not available
 try:
@@ -110,6 +148,7 @@ class _ActiveJobsRenderer:
 
     def __rich__(self) -> Text:
         """Called by Rich on each refresh."""
+        _reenable_win_vt()
         return self._progress._build_active_display()
 
 
@@ -229,6 +268,7 @@ class ProgressDisplay:
 
     def _print_job_completion(self, job: JobStatus) -> None:
         """Print a completed job as permanent output above the live region."""
+        _reenable_win_vt()
         counter = job.completion_counter or self._format_counter()
         job_tag = f"[{job.library}, {job.platform}, {job.config}, {job.link}]"
         duration = _format_duration(job.duration_seconds)
@@ -376,6 +416,9 @@ class ProgressDisplay:
 
             # Clear active jobs for new level
             self._active_jobs.clear()
+
+            # Re-enable VT in case a subprocess reset it during the previous level
+            _reenable_win_vt()
 
             # Print header
             header = f"{'═' * 70}"

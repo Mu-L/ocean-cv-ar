@@ -9,6 +9,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 import threading
 from pathlib import Path
@@ -192,6 +193,7 @@ class SourceFetcher:
             ["git", "fetch", "--depth", "1", "origin", commit],
             cwd=target_dir,
             capture_output=True,
+            creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
         )
 
         if result.returncode != 0:
@@ -348,6 +350,7 @@ class SourceFetcher:
                 cwd=target_dir,
                 capture_output=True,
                 text=True,
+                creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
             )
             if result.returncode != 0:
                 # Try with patch command as fallback (for non-git sources)
@@ -356,6 +359,7 @@ class SourceFetcher:
                     cwd=target_dir,
                     capture_output=True,
                     text=True,
+                    creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
                 )
                 if result.returncode != 0:
                     raise RuntimeError(
@@ -404,6 +408,7 @@ class SourceFetcher:
             check=check,
             capture_output=True,
             text=True,
+            creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
         )
 
     def get_actual_commit(self, library: str, version: str) -> Optional[str]:
@@ -419,6 +424,7 @@ class SourceFetcher:
                 capture_output=True,
                 text=True,
                 check=True,
+                creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
             )
             return result.stdout.strip()
         except subprocess.CalledProcessError:
