@@ -12,17 +12,9 @@
     <Import Condition="'$(ocean_mediaopenimagelibrariesjni_common_imported)' != 'True'" Project="mediaopenimagelibrariesjni_common.props"/>
   </ImportGroup>
 
-  <!-- Link against debug library -->
-  <ItemDefinitionGroup Condition="$(Configuration.Contains('Debug'))">
-    <Link>
-      <AdditionalDependencies>OceanMediaOpenImageLibrariesJniD;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
-
-  <!-- Link against release library -->
-  <ItemDefinitionGroup Condition="!$(Configuration.Contains('Debug'))">
-    <Link>
-      <AdditionalDependencies>OceanMediaOpenImageLibrariesJni;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
+  <!-- Use shared JNI linking props to export all JNI symbols via whole-archive -->
+  <PropertyGroup>
+    <OceanJniLibraryName>OceanMediaOpenImageLibrariesJni</OceanJniLibraryName>
+  </PropertyGroup>
+  <Import Condition="'$(ocean_jni_library_common_imported)' != 'True'" Project="..\..\..\..\ocean_jni_library_common.props"/>
 </Project>

@@ -12,19 +12,9 @@
     <Import Condition="'$(ocean_devicesarcorejni_common_imported)' != 'True'" Project="devicesarcorejni_common.props"/>
   </ImportGroup>
 
-  <!-- Link library for Debug configurations -->
-  <PropertyGroup Condition="'$(Configuration)'=='Static Debug' Or '$(Configuration)'=='Shared Debug'">
-    <OceanDevicesARCoreJniLib>OceanDevicesARCoreJniD.lib</OceanDevicesARCoreJniLib>
+  <!-- Use shared JNI linking props to export all JNI symbols via whole-archive -->
+  <PropertyGroup>
+    <OceanJniLibraryName>OceanDevicesARCoreJni</OceanJniLibraryName>
   </PropertyGroup>
-
-  <!-- Link library for Release configurations -->
-  <PropertyGroup Condition="'$(Configuration)'=='Static Release' Or '$(Configuration)'=='Shared Release'">
-    <OceanDevicesARCoreJniLib>OceanDevicesARCoreJni.lib</OceanDevicesARCoreJniLib>
-  </PropertyGroup>
-
-  <ItemDefinitionGroup>
-    <Link>
-      <AdditionalDependencies>$(OceanDevicesARCoreJniLib);%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
+  <Import Condition="'$(ocean_jni_library_common_imported)' != 'True'" Project="..\..\..\..\ocean_jni_library_common.props"/>
 </Project>

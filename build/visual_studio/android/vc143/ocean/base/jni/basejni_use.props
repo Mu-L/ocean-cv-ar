@@ -12,17 +12,9 @@
     <Import Condition="'$(ocean_basejni_common_imported)' != 'True'" Project="basejni_common.props"/>
   </ImportGroup>
 
-  <!-- Link against debug library -->
-  <ItemDefinitionGroup Condition="$(Configuration.Contains('Debug'))">
-    <Link>
-      <AdditionalDependencies>OceanBaseJniD;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
-
-  <!-- Link against release library -->
-  <ItemDefinitionGroup Condition="!$(Configuration.Contains('Debug'))">
-    <Link>
-      <AdditionalDependencies>OceanBaseJni;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
+  <!-- Use shared JNI linking props to export all JNI symbols via whole-archive -->
+  <PropertyGroup>
+    <OceanJniLibraryName>OceanBaseJni</OceanJniLibraryName>
+  </PropertyGroup>
+  <Import Condition="'$(ocean_jni_library_common_imported)' != 'True'" Project="..\..\ocean_jni_library_common.props"/>
 </Project>

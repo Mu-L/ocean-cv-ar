@@ -12,17 +12,9 @@
     <Import Condition="'$(ocean_mediaandroidjni_common_imported)' != 'True'" Project="mediaandroidjni_common.props"/>
   </ImportGroup>
 
-  <!-- Link against debug library -->
-  <ItemDefinitionGroup Condition="$(Configuration.Contains('Debug'))">
-    <Link>
-      <AdditionalDependencies>OceanMediaAndroidJniD;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
-
-  <!-- Link against release library -->
-  <ItemDefinitionGroup Condition="!$(Configuration.Contains('Debug'))">
-    <Link>
-      <AdditionalDependencies>OceanMediaAndroidJni;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
+  <!-- Use shared JNI linking props to export all JNI symbols via whole-archive -->
+  <PropertyGroup>
+    <OceanJniLibraryName>OceanMediaAndroidJni</OceanJniLibraryName>
+  </PropertyGroup>
+  <Import Condition="'$(ocean_jni_library_common_imported)' != 'True'" Project="..\..\..\..\ocean_jni_library_common.props"/>
 </Project>

@@ -12,19 +12,9 @@
     <Import Condition="'$(ocean_devicesandroidjni_common_imported)' != 'True'" Project="devicesandroidjni_common.props"/>
   </ImportGroup>
 
-  <!-- Link library for Debug configurations -->
-  <PropertyGroup Condition="'$(Configuration)'=='Static Debug' Or '$(Configuration)'=='Shared Debug'">
-    <OceanDevicesAndroidJniLib>OceanDevicesAndroidJniD.lib</OceanDevicesAndroidJniLib>
+  <!-- Use shared JNI linking props to export all JNI symbols via whole-archive -->
+  <PropertyGroup>
+    <OceanJniLibraryName>OceanDevicesAndroidJni</OceanJniLibraryName>
   </PropertyGroup>
-
-  <!-- Link library for Release configurations -->
-  <PropertyGroup Condition="'$(Configuration)'=='Static Release' Or '$(Configuration)'=='Shared Release'">
-    <OceanDevicesAndroidJniLib>OceanDevicesAndroidJni.lib</OceanDevicesAndroidJniLib>
-  </PropertyGroup>
-
-  <ItemDefinitionGroup>
-    <Link>
-      <AdditionalDependencies>$(OceanDevicesAndroidJniLib);%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
+  <Import Condition="'$(ocean_jni_library_common_imported)' != 'True'" Project="..\..\..\..\ocean_jni_library_common.props"/>
 </Project>

@@ -12,19 +12,9 @@
     <Import Condition="'$(ocean_renderingglescenegraphjni_common_imported)' != 'True'" Project="renderingglescenegraphjni_common.props"/>
   </ImportGroup>
 
-  <!-- Link library for Debug configurations -->
-  <PropertyGroup Condition="'$(Configuration)'=='Static Debug' Or '$(Configuration)'=='Shared Debug'">
-    <OceanRenderingGLESceneGraphJniLib>OceanRenderingGLESceneGraphJniD.lib</OceanRenderingGLESceneGraphJniLib>
+  <!-- Use shared JNI linking props to export all JNI symbols via whole-archive -->
+  <PropertyGroup>
+    <OceanJniLibraryName>OceanRenderingGLESceneGraphJni</OceanJniLibraryName>
   </PropertyGroup>
-
-  <!-- Link library for Release configurations -->
-  <PropertyGroup Condition="'$(Configuration)'=='Static Release' Or '$(Configuration)'=='Shared Release'">
-    <OceanRenderingGLESceneGraphJniLib>OceanRenderingGLESceneGraphJni.lib</OceanRenderingGLESceneGraphJniLib>
-  </PropertyGroup>
-
-  <ItemDefinitionGroup>
-    <Link>
-      <AdditionalDependencies>$(OceanRenderingGLESceneGraphJniLib);%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
+  <Import Condition="'$(ocean_jni_library_common_imported)' != 'True'" Project="..\..\..\..\ocean_jni_library_common.props"/>
 </Project>
